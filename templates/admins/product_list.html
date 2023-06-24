@@ -1,0 +1,228 @@
+{% extends 'admins/admin_base.html' %}
+
+{% load static %}
+{% block body %}  
+<div class="content-wrapper">
+    <div class="row">
+      <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card" style='width: 70%;'>
+          <div class="card-body">
+            <h4 class="card-title">Product Management</h4>
+            <a href="#addEmployeeModal" class="btn btn-success" data-toggle="modal" style="height: 35px;float:right;padding-top:10px;">
+			<!-- <a href="#addEmployeeModal" class="btn btn-success" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add New Employee</span></a> -->
+
+              <span>Add New Product <strong>+</strong></span>
+            </a>
+  
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+					<th>Brand</th>
+					<th>Category</th>
+					<th>Image</th>
+					<th>Price</th>
+					<th>Description</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for product in products %}
+                  <tr>
+                    <td>{{ product.product_name }}</td>
+					<td>{{ product.product_brand.brand_name }}</td>
+					<td>{{ product.product_category.category_name}}</td>
+					<td><img src="{{ product.product_thumbnail.url }}"></td>
+					<td>{{ product.product_price }}</td>
+					
+					<td>{{ product.product_description }}</td>
+                    <td style="display: flex;">
+                      <a href="#editEmployeeModal-{{ forloop.counter }}" class="btn btn-warning" data-toggle="modal" title="Edit">Edit</a>&nbsp;&nbsp;
+                      <a href="#deleteEmployeeModal-{{ forloop.counter }}" class="btn btn-danger deleteBtn" data-toggle="modal" title="Delete">Delete</a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div> 
+    </div>
+  </div>
+  
+	<!-- Add Modal HTML -->
+	<div id="addEmployeeModal" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form action="{% url 'product_add' %}" method="post" enctype="multipart/form-data">
+					{% csrf_token %}
+					<div class="modal-header">						
+						<h4 class="modal-title">Add Product</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					</div>
+					<div class="modal-body">					
+						<div class="form-group">
+							<label>Name</label>
+							<input type="text" class="form-control" aria-label="Floating label select example" name="product_name" required>
+						</div>
+						<div class="form-select">
+							<label>Brand</label>
+							
+							<select id="floatingSelect" class="form-select" name="product_brand" required>
+								{% for brand in brands %}
+								<option value={{brand.id}}>{{brand.brand_name}}</option>
+								{% endfor %}
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Category</label>
+							
+							<select id="my-dropdown" class="form-control" name="product_category" required>
+								<option value=""></option>
+								{% for category in categories %}
+								<option value="{{category.id}}">{{category.category_name}}</option>
+								{% endfor %}
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Image</label>
+							<input type="file" class="form-control" name="product_thumbnail" required>
+						</div>
+						<div class="form-group">
+							<label>Price</label>
+							<input type="text" class="form-control" name="product_price" required>
+						</div>
+
+						<div class="form-group">
+							<label>Description</label>
+							<input type="text" class="form-control" name="product_description" required>
+						</div>					
+					</div>
+					<div class="modal-footer">
+						<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
+						<input type="submit" class="btn btn-success" value="Add">
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<!-- Edit Modal HTML -->
+	{% for product in products %}
+	<div id="editEmployeeModal-{{ forloop.counter }}" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form action="/admin_dashboard/product_update/{{product.id}}" method="post" enctype="multipart/form-data">
+					{% csrf_token %}
+					<div class="modal-header">						
+						<h4 class="modal-title">Edit Product</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					</div>
+					<div class="modal-body">					
+						<div class="form-group">
+							<label>Name</label>
+							<input name="product_name" value="{{product.product_name}}" type="text" class="form-control" required>
+						</div>
+						
+
+					<div class="form-group">
+						<label>Brand</label>
+						<select id="my-dropdown" class="form-control" name="product_brand" required>
+							<option value=""></option>
+							{% for brand in brands %}
+								<option value="{{ brand.id }}" {% if brand.id|stringformat:"s" == product.product_brand.id|stringformat:"s" %} selected {% endif %}>{{ brand.brand_name }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					
+
+					<div class="form-group">
+						<label>Category</label>
+						<select id="my-dropdown" class="form-control" name="product_category" required>
+							<option value=""></option>
+							{% for category in categories %}
+								<option value="{{ category.id }}" {% if category.id|stringformat:"s" == product.product_category.id|stringformat:"s" %} selected {% endif %}>{{ category.category_name }}</option>
+							{% endfor %}
+						</select>
+					</div>
+					
+					<div class="form-group">
+						<label>Thumbnail</label>
+						<img src="{{ product.product_thumbnail.url }}" alt="Product Thumbnail" width="100" height="100">
+						<input type="file" name="product_thumbnail" accept="image/*">
+					</div>
+
+
+						
+						<div class="form-group">
+							<label>Price</label>
+							<input type="text" class="form-control" value="{{product.product_price}}" name="product_price" required>
+						</div>
+						
+						
+						<div class="form-group">
+							<label>Description</label>
+							<input type="text" class="form-control" value="{{product.product_description}}" name="product_description" required>
+						</div>	
+					</div>
+					<div class="modal-footer">
+						<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
+						<input type="submit" class="btn btn-info" value="Update">
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+	<!-- Delete Modal HTML -->
+	{% for product in products %}
+	<div id="deleteEmployeeModal-{{forloop.counter}}" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form>
+					<div class="modal-header">						
+						<h4 class="modal-title">Delete Product</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					</div>
+					<div class="modal-body">					
+						<p>Are you sure you want to delete these Records?</p>
+						<p class="text-warning"><small>{{product.product_name}} information are delete ?</small></p>
+					</div>
+					<div class="modal-footer">
+						<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
+						<!-- <input type="submit" class="btn btn-danger" value="Delete"> -->
+						<a href="/admin_dashboard/product_delete/{{product.id}}" type="submit" class="btn btn-danger">Delete</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+    <script>
+        $(document).ready(function(){
+            // Activate tooltip
+            $('[data-toggle="tooltip"]').tooltip();
+            
+            // Select/Deselect checkboxes
+            var checkbox = $('table tbody input[type="checkbox"]');
+            $("#selectAll").click(function(){
+                if(this.checked){
+                    checkbox.each(function(){
+                        this.checked = true;                        
+                    });
+                } else{
+                    checkbox.each(function(){
+                        this.checked = false;                        
+                    });
+                } 
+            });
+            checkbox.click(function(){
+                if(!this.checked){
+                    $("#selectAll").prop("checked", false);
+                }
+            });
+        });
+    </script>
+	
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends 'layouts/main.html' %}
+
+
+{% load static %}
+
+{% block body %}
+<div class="inner_page-banner one-img" style="text-align: center; background: url('{% static 'lap/images/smallbanner.jpeg' %}') no-repeat center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; -ms-background-size: cover; min-height: 350px;"></div>
+
+<style>
+  .big-image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .big-image {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+  }
+
+  .small-images {
+    display: flex;
+   
+    margin-top: 20px;
+  }
+
+  .small-image-box {
+    width: 20%;
+    cursor: pointer;
+  }
+
+  .small-image {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+  }
+</style>
+
+<div class="container">
+  <div class="inner-sec-shop pt-lg-4 pt-3">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="big-image-container">
+          <img src="{{ product.product_thumbnail.url}}" class="big-image" id="big-image" alt="Big Image">
+        </div>
+      </div>
+      <div class="col-lg-6 single-right-left simpleCart_shelfItem">
+        <h3>{{product.product_name}}</h3>
+        <p><span class="item_price">${{product.product_price}}</span>
+          <del>$1,199</del>
+        </p>
+        <div class="rating1">
+          <ul class="stars">
+            <li><a href="#"><i class="fa fa-star" aria-hidden="true"></i></a></li>
+            <li><a href="#"><i class="fa fa-star" aria-hidden="true"></i></a></li>
+            <li><a href="#"><i class="fa fa-star" aria-hidden="true"></i></a></li>
+            <li><a href="#"><i class="fa fa-star-half-o" aria-hidden="true"></i></a></li>
+            <li><a href="#"><i class="fa fa-star-o" aria-hidden="true"></i></a></li>
+          </ul>
+        </div>
+        <div class="description">
+          <h5>Check delivery, payment options, and charges at your location</h5>
+          <form action="#" method="post">
+            <input class="form-control" type="text" name="Email" placeholder="Please enter..." required="">
+            <input type="submit" value="Check">
+          </form>
+        </div>
+     
+        <div class="occasion-cart">
+          <div class="toys single-item singlepage">
+            <form action="#" method="post">
+              <input type="hidden" name="cmd" value="_cart">
+              <input type="hidden" name="add" value="1">
+              <input type="hidden" name="toys_item" value="Farenheit">
+              <input type="hidden" name="amount" value="575.00">
+              <button type="submit" class="toys-cart ptoys-cart add">Add to Cart</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-5">
+      <div class="col-lg-12">
+        <div class="small-images">
+        {% for image in product.images.all %}
+          <div class="small-image-box" onclick="showImage('{{ image.image.url }}')">
+            <img src="{{ image.image.url }}" class="small-image" alt="Small Image">
+          </div>
+         {% endfor %}
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flexslider/2.7.2/jquery.flexslider.min.js"></script>
+<script src="https://cdn.jsdelivr.net/jquery.zoom/1.7.21/jquery.zoom.min.js"></script>
+<script>
+  function showImage(imageUrl) {
+    var bigImage = $("#big-image");
+    bigImage.attr("src", imageUrl);
+    bigImage.data("zoom-image", imageUrl).attr("data-zoom-image", imageUrl);
+    $('.flexslider1').flexslider(0);
+    $('.zoomContainer').remove();
+    bigImage.zoom();
+  }
+</script>
+
+  
+    
+
+{% endblock %}

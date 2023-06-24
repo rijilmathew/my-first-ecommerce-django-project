@@ -1,0 +1,169 @@
+{% extends 'admin/admin_base.html' %}
+
+{% load static %}
+{% block body %}  
+<div class="content-wrapper">
+	<div class="row" style="width: 88%;">
+		<div class="col-lg-12 grid-margin stretch-card">
+			<div class="card">
+				<div class="card-body">
+					<h4 class="card-title"> Order Management</h4>
+					
+
+					<div class="table-responsive">
+						<table class="table table-striped" style="text-align:center">
+							<thead>
+								<tr>
+									<th>Order_no</th>
+									<th>User</th>
+									<th>Address</th>
+									<th>Order Date</th>					
+									<th>Order Status</th>
+									<th>Payment Method</th>
+									<th>Payment Status</th>
+									<th>Checkout Status</th>
+									<th>Payment Amount</th>	
+									<th>Actions</th>								
+									<th>Product name</th>
+									<th>Quantity</th>
+									<th>Price</th>
+									
+									
+								</tr>
+							</thead>
+							<tbody>
+							<tbody>
+								{% for order in orders %}
+								<tr>
+									<td rowspan="{{ order.orderitem_set.count }}">{{ order.order_no }}</td>
+									<td rowspan="{{ order.orderitem_set.count }}">{{ order.user }}</td>
+									<td rowspan="{{ order.orderitem_set.count }}">
+										{{ order.to_address.first_name }} {{ order.to_address.last_name }}
+										<br>
+										{{ order.to_address.phone_number }}
+										<br>
+										{{ order.to_address.address_line_1 }}
+										<br>
+										{{ order.to_address.address_line_2 }}
+										<br>
+										{{ order.to_address.postcode }}
+										<br>
+										{{ order.to_address.area }}
+										<br>
+										{{ order.to_address.state }}
+									</td>
+									<td rowspan="{{ order.orderitem_set.count }}">{{ order.order_date }}</td>
+									<td rowspan="{{ order.orderitem_set.count }}">{{ order.order_status }}</td>
+									<td rowspan="{{ order.orderitem_set.count }}">{{ order.payment_status }}</td>
+									<td rowspan="{{ order.orderitem_set.count }}">{{ order.payment_method }}</td>
+									<td rowspan="{{ order.orderitem_set.count }}">{{ order.checkout_status }}</td>
+									<td rowspan="{{ order.orderitem_set.count }}">{{ order.get_total }}</td>
+									<td rowspan="{{ order.orderitem_set.count }}">
+										<a href="#editEmployeeModal-{{ forloop.counter }}" class="btn btn-warning"
+												data-toggle="modal" title="Edit">Edit</a>
+									</td>
+									{% for order_item in order.orderitem_set.all %}
+									{% if forloop.counter > 1 %}
+									<tr>
+										{% endif %}
+									<td>{{ order_item.product }}</td>
+									<td>{{ order_item.quantity }}</td>
+									<td>{{ order_item.get_subtotal }}</td>
+										
+									{% endfor %}
+								</tr>
+								
+								
+								{% endfor %}
+							</tbody>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+  
+	
+	<!-- Edit Modal HTML -->
+	{% for order in orders %}
+	<div id="editEmployeeModal-{{ forloop.counter }}" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form action="{% url 'order_update' order.id %}" method="post" enctype="multipart/form-data">
+					{% csrf_token %}
+					<div class="modal-header">						
+						<h4 class="modal-title">Edit Product Images</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					</div>
+					<div class="modal-body">					
+						
+						<label for="order_status">Order Status:</label>
+						<select name="order_status" id="order_status">
+						  {% for status in order.ORDER_STATUS %}
+							<option value="{{ status.0 }}" {% if order.order_status == status.0 %}selected{% endif %}>{{ status.1 }}</option>
+						  {% endfor %}
+						</select>
+						
+
+					
+					<div class="modal-footer">
+						<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
+						<input type="submit" class="btn btn-info" value="Update">
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+	<!-- Delete Modal HTML -->
+	{% for product_image in product_images %}
+	<div id="deleteEmployeeModal-{{forloop.counter}}" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form>
+					<div class="modal-header">						
+						<h4 class="modal-title">Delete Product Images</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					</div>
+					<div class="modal-body">					
+						<p>Are you sure you want to delete these Records?</p>
+						<p class="text-warning"><small>{{product_image.name}} {{product_image.colors}} information are delete ?</small></p>
+					</div>
+					<div class="modal-footer">
+						<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
+						<!-- <input type="submit" class="btn btn-danger" value="Delete"> -->
+						<a href="{% url 'product_images_delete' product_image.id %}" type="submit" class="btn btn-danger">Delete</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+    <script>
+        $(document).ready(function(){
+            // Activate tooltip
+            $('[data-toggle="tooltip"]').tooltip();
+            
+            // Select/Deselect checkboxes
+            var checkbox = $('table tbody input[type="checkbox"]');
+            $("#selectAll").click(function(){
+                if(this.checked){
+                    checkbox.each(function(){
+                        this.checked = true;                        
+                    });
+                } else{
+                    checkbox.each(function(){
+                        this.checked = false;                        
+                    });
+                } 
+            });
+            checkbox.click(function(){
+                if(!this.checked){
+                    $("#selectAll").prop("checked", false);
+                }
+            });
+        });
+    </script>
+	
+{% endblock %}

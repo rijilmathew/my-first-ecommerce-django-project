@@ -1,0 +1,135 @@
+{% extends 'layouts/main.html' %}
+{% load static %}
+
+{% block body %}  
+
+ 
+ <div class="inner_page-banner one-img" style="text-align: center; background: url('{% static 'lap/images/smallbanner.jpeg' %}') no-repeat center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; -ms-background-size: cover; min-height: 350px;"></div> 
+
+<section class="contact py-lg-4 py-md-3 py-sm-3 py-3">
+   <div class="container-fluid py-lg-5 py-md-4 py-sm-4 py-3">
+      <h3 class="title text-center mb-lg-5 mb-md-4 mb-sm-4 mb-3"></h3>
+      <div class="row">   
+         <div class="side-bar col-lg-3">
+           
+
+           <div class="left-side">
+               <h3 class="agileits-sear-head">Categories</h3>
+               <ul>
+                  <li>
+                        <select onchange="location = this.value;">
+                           <option selected disabled>Select a category</option>
+                           {% for category in categories %}
+                              <option value="{% url 'product_home' %}?category={{ category.category_name }}"
+                                    {% if category.category_name == selected_category %}selected{% endif %}>
+                                    {{ category.category_name }}
+                              </option>
+                           {% endfor %}
+                        </select>
+                  </li>
+               </ul>
+            </div> 
+         </div>
+         <div class="left-ads-display col-lg-9">
+            <div class="row">
+               {% for product in products %}
+               <div class="col-lg-4 col-md-6 col-sm-6 product-men women_two">
+                  <div class="product-toys-info">
+                     <div class="men-pro-item">
+                        <div class="men-thumb-item">
+                           <img src="{{product.product_thumbnail.url}}" class="img-thumbnail img-fluid" alt="">
+                           <div class="men-cart-pro">
+                              <div class="inner-men-cart-pro">
+                                 <a href="{% url 'single_product' product.id %}" class="link-product-add-cart">Quick View</a>
+                              </div>
+                           </div>
+                           <span class="product-new-top">New</span>
+                        </div>
+                        <div class="item-info-product">
+                           <div class="info-product-price">
+                              <div class="grid_meta">
+                                 <div class="product_price">
+                                    <h4>
+                                       <a href="single.html">{{ product.product_name}}</a>
+                                    </h4>
+                                    <div class="grid-price mt-2">
+                                       <span class="money">{{ product.product_price}}</span>
+                                    </div>
+                                 </div>
+                                 <div class="grid-price mt-2">
+                                    <span class="description">{{product.product_description}}</span>
+                                 </div>
+                              </div>
+                              <div class="toys single-item hvr-outline-out">
+                                 <form action="#" method="post">
+                                    <input type="hidden" name="cmd" value="_cart">
+                                    <input type="hidden" name="add" value="1">
+                                    <input type="hidden" name="toys_item" value="toys(barbie)">
+                                    <input type="hidden" name="amount" value="575.00">
+                                    <button type="submit" class="toys-cart ptoys-cart">
+                                       <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                 </form>
+                              </div>  
+                           </div>
+                           <div class="clearfix"></div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               {% endfor %}
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+{% comment %} -------------Pagination--------------------------------------- {% endcomment %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 offset-md-4">
+            <p>page: {{ products.number }}/{{ products.paginator.num_pages }}</p>
+            <nav aria-label="...">
+                <ul class="pagination">
+                    {% if products.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?page={{ products.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">Previous</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                    {% endif %}
+                    {% for num in products.paginator.page_range %}
+                    {% if products.number == num %}
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?page={{ products.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">Next</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
+

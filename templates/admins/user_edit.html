@@ -1,0 +1,74 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Skydash Admin</title>
+  <!-- plugins:css -->
+  <link rel="stylesheet" href="{% static 'admin_vendors/feather/feather.css' %}">
+  <link rel="stylesheet" href="{% static 'admin_vendors/ti-icons/css/themify-icons.css' %}">
+  <link rel="stylesheet" href="{% static 'admin_vendors/css/vendor.bundle.base.css' %}">
+  <!-- endinject -->
+  <!-- Plugin css for this page -->
+  <!-- End plugin css for this page -->
+  <!-- inject:css -->
+  <link rel="stylesheet" href="{% static 'admin_css/vertical-layout-light/style.css' %}">
+  <!-- endinject -->
+  <link rel="shortcut icon" href="{% static 'admin_images/favicon.png' %}" />
+</head>
+
+<body>
+  <div class="container-scroller">
+    <div class="container-fluid page-body-wrapper full-page-wrapper">
+      <div class="content-wrapper d-flex align-items-center auth px-0">
+        <div class="row w-100 mx-0">
+          <div class="col-lg-4 mx-auto">
+            <div class="auth-form-light text-left py-5 px-4 px-sm-5">
+              
+              <h1><strong>Edit User</strong> </h1>
+              <form class="pt-3" method="post" action="">
+                {% csrf_token %}
+
+                {% if user %}
+
+                {% if user.is_blocked == 0 %}
+                <td><a href="{% url 'block_user' user_id=user.id %}"><button class="btn btn-danger block">Block</button></a></td>
+                {% else %}
+                <td><a href="{% url 'unblock_user' user_id=user.id %}"><button class="btn btn-success ublock">Unblock</button></a></td>
+                {% endif %}
+
+                
+                
+                {% endif %}
+                <div class="mt-3">
+                  <input class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn" type="submit" value="UPDATE">
+                </div>
+                <div class="text-center mt-4 font-weight-light">
+                  <a href="{% url 'user_home' %}" class="text-primary">Cancel</a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- content-wrapper ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+  </div>
+  <!-- container-scroller -->
+  <!-- plugins:js -->
+  <script src="{% static 'admin_vendors/js/vendor.bundle.base.js' %}"></script>
+  
+  <script src="{% static 'admin_js/off-canvas.js' %}"></script>
+  <script src="{% static 'admin_js/hoverable-collapse.js' %}"></script>
+  <script src="{% static 'admin_js/template.js' %}"></script>
+  <script src="{% static 'admin_js/settings.js' %}"></script>
+  <script src="{% static 'admin_js/todolist.js' %}"></script>
+  <!-- endinject -->
+</body>
+
+</html>

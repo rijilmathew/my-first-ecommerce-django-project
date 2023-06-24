@@ -1,0 +1,69 @@
+{% extends 'layouts/main.html' %}
+{% load static %}
+
+{% block body %} 
+
+
+
+{% include "inc/slider.html" %}  
+<section class="about py-lg-4 py-md-3 py-sm-3 py-3" id="about">
+   <div class="container py-lg-5 py-md-5 py-sm-4 py-4">
+      <h3 class="title text-center mb-lg-5 mb-md-4 mb-sm-4 mb-3">Best Products</h3>
+
+      <div class="row">
+         {% for product in best_products %}
+          {% if product.product_name == q or product in best_products %}
+            <div class="col-lg-4 col-md-6 col-sm-6 mt-3 text-center banner-agile-flowers">
+               <img src="{{ product.product_thumbnail.url }}" class="img-thumbnail" alt="{{ product.product_name }}">
+               <div class="banner-right-icon">
+                  <h4 class="pt-3">{{ product.product_name }}</h4>
+               </div>
+            </div>
+          {% endif %}
+         {% endfor %}
+      </div>
+   </div>
+</section>
+
+      <!--new Arrivals -->
+      <section class="blog py-lg-4 py-md-3 py-sm-3 py-3">
+         <div class="container py-lg-5 py-md-4 py-sm-4 py-3">
+            <h3 class="title clr text-center mb-lg-5 mb-md-4 mb-sm-4 mb-3">New Arrivals</h3>
+            <div class="slid-img">
+               <ul id="flexiselDemo1" class="product-list">
+                  {% for product in new_arrivals %}
+                   {% if product.product_name == q or product in new_arrivals %}
+                     <li class="product-item">
+                        <div class="agileinfo_port_grid">
+                           <img src="{{ product.product_thumbnail.url }}" alt="{{ product.product_name }}" class="img-fluid" />
+                           <div class="banner-right-icon">
+                              <h4 class="pt-3">{{ product.product_name }}</h4>
+                           </div>
+                           <div class="outs_more-buttn">
+                              <a href="{% url 'single_product' product.id %}">Shop Now</a>
+                           </div>
+                        </div>
+                      </li>
+                   {% endif %}
+                  {% endfor %}
+               </ul>
+            </div>
+         </div>
+      </section>
+      <!--//about -->
+      <!--Customers Review -->
+            
+      
+
+{% endblock body %}
+
+<style>
+.product-list {
+  display: flex;
+  justify-content: space-between;
+}
+
+.product-item {
+  margin-bottom: 20px; /* Adjust the value as desired */
+}
+</style>
