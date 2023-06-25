@@ -20,14 +20,16 @@
                            </li>
                           
                            <li class="toyscart toyscart2 cart cart box_1">
-                              <form action="#" method="post" class="last">
-                                 <input type="hidden" name="cmd" value="_cart">
-                                 <input type="hidden" name="display" value="1">
+                              <form action="{% url 'add_to_cart' %}" method="post" class="last">
+                                 {% csrf_token %}
+                                 <input type="hidden" name="product_id" value="{{ product.id }}">
+                                 <input type="hidden" name="price" value="{{ product.product_price }}">
                                  <button class="top_toys_cart" type="submit" name="submit" value="">
-                                 <span class="fas fa-cart-arrow-down"></span>
+                                    <span class="fas fa-cart-arrow-down"></span>
                                  </button>
                               </form>
                            </li>
+
                         </ul>
                      </div>
                   </div>

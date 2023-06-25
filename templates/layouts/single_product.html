@@ -81,18 +81,27 @@
         </div>
       </div>
     </div>
-    <div class="row mt-5">
-      <div class="col-lg-12">
-        <div class="small-images">
-        {% for image in product.images.all %}
-          <div class="small-image-box" onclick="showImage('{{ image.image.url }}')">
-            <img src="{{ image.image.url }}" class="small-image" alt="Small Image">
+        <div class="row mt-5">
+        <div class="col-lg-12">
+          <div class="small-images">
+            {% for image in product.images.all %}
+              <div class="small-image-box" onclick="showImage('{{ image.image1.url }}')">
+                <img src="{{ image.image1.url }}" class="small-image" alt="Small Image">
+              </div>
+              {% if image.image2 %}
+                <div class="small-image-box" onclick="showImage('{{ image.image2.url }}')">
+                  <img src="{{ image.image2.url }}" class="small-image" alt="Small Image">
+                </div>
+              {% endif %}
+              {% if image.image3 %}
+                <div class="small-image-box" onclick="showImage('{{ image.image3.url }}')">
+                  <img src="{{ image.image3.url }}" class="small-image" alt="Small Image">
+                </div>
+              {% endif %}
+            {% endfor %}
           </div>
-         {% endfor %}
-          
         </div>
       </div>
-    </div>
   </div>
 </div>
 

@@ -35,6 +35,8 @@
    
       <!--Shoping cart-->
       <link rel="stylesheet" href="{% static 'css/shop.css' %}" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="{% static 'css/checkout.css' %}">
+
       <!--//Shoping cart-->
       <!--price range-->
       <link rel="stylesheet" type="text/css" href="{% static 'css/jquery-ui1.css' %}">
@@ -44,25 +46,17 @@
       <!--//stylesheets-->
       <link href="//fonts.googleapis.com/css?family=Sunflower:500,700" rel="stylesheet">
       <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700" rel="stylesheet">
+       {% include "inc/navbar.html" %} 
    </head>
      
    <body>
-      <div class="header-outs" id="home">
-       <!-- header 4 -->
-        {% include "inc/navbar.html" %}  
-       
+         {% block body %}  
 
+         {% endblock body %}
 
-        <!-- header 4 -->
-         
-         <!-- Slideshow 4 -->
-        {% comment %} {% include "inc/slider.html" %}  {% endcomment %}
-       
-      </div> 
-{% block body %}  
+         {% include "inc/footer.html" %}  
+   </body>
 
-{% endblock body %}
-</body>
       
       <!--js working-->
       <script src="{% static 'js/jquery-2.2.3.min.js' %}"></script>
@@ -70,40 +64,73 @@
       <!-- cart-js -->
       <script src="{% static 'js/minicart.js' %}"></script>
       <script>
-         toys.render();
-         
-         toys.cart.on('toys_checkout', function (evt) {
-         	var items, len, i;
-         
-         	if (this.subtotal() > 0) {
-         		items = this.items();
-         
-         		for (i = 0, len = items.length; i < len; i++) {}
-         	}
+         $(document).ready(function() {
+            // Find the add to cart form
+            var addToCartForm = $('.toys.single-item form');
+
+            // Add submit event listener to the form
+            addToCartForm.on('submit', function(evt) {
+               evt.preventDefault(); // Prevent the form from submitting
+
+               // Get the form data
+               var formData = addToCartForm.serialize();
+
+               // Perform an AJAX request to add the item to the cart
+               $.ajax({
+                  url: '{% url 'add_to_cart' %}',
+                  method: 'POST',
+                  data: formData,
+                  success: function(response) {
+                     // Handle the successful response
+                     // Open the modal or small page here
+                     $('#cartModal').modal('show'); // Example: using Bootstrap modal
+
+                     // Optionally, you can update the cart item count or total on the main page
+                     // based on the response from the server
+                  },
+                  error: function(xhr, status, error) {
+                     // Handle the error response (e.g., display an error message)
+                     alert('Error adding item to cart. Please try again.');
+                  }
+               });
+            });
          });
       </script>
-      <!-- //cart-js -->
-      <!--responsiveslides banner-->
-      <script src="{% static 'js/responsiveslides.min.js' %}"></script>
-      <script>
-         // You can also use "$(window).load(function() {"
-         $(function () {
-         	// Slideshow 4
-         	$("#slider4").responsiveSlides({
-         		auto: true,
-         		pager:false,
-         		nav:true ,
-         		speed: 900,
-         		namespace: "callbacks",
-         		before: function () {
-         			$('.events').append("<li>before event fired.</li>");
-         		},
-         		after: function () {
-         			$('.events').append("<li>after event fired.</li>");
-         		}
-         	});
-         
-         });
+            {% comment %} <script>
+               toys.render();
+               
+               toys.cart.on('toys_checkout', function (evt) {
+                  var items, len, i;
+               
+                  if (this.subtotal() > 0) {
+                     items = this.items();
+               
+                     for (i = 0, len = items.length; i < len; i++) {}
+                  }
+               });
+            </script> {% endcomment %}
+            <!-- //cart-js -->
+            <!--responsiveslides banner-->
+            <script src="{% static 'js/responsiveslides.min.js' %}"></script>
+            <script>
+               // You can also use "$(window).load(function() {"
+               $(function () {
+                  // Slideshow 4
+                  $("#slider4").responsiveSlides({
+                     auto: true,
+                     pager:false,
+                     nav:true ,
+                     speed: 900,
+                     namespace: "callbacks",
+                     before: function () {
+                        $('.events').append("<li>before event fired.</li>");
+                     },
+                     after: function () {
+                        $('.events').append("<li>after event fired.</li>");
+                     }
+                  });
+               
+               });
       </script>
       <!--// responsiveslides banner-->	 
       <!--slider flexisel -->
@@ -171,6 +198,6 @@
       <script src="{% static 'js/bootstrap.min.js' %}"></script>
       <!-- //bootstrap working-->
    
-   {% include "inc/footer.html" %}   
+    
    
    

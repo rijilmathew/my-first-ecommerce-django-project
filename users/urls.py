@@ -12,6 +12,7 @@ urlpatterns = [
    # path('product_by_brand',views.product_by_brand,name="product_by_brand"),
    
    path('single_product/<int:id>/', views.single_product, name='single_product'),
+   path('checkout',views.checkout,name='checkout'),
   
   
    
