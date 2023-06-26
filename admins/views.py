@@ -294,37 +294,7 @@ def unblock_user(request, id):
 #addtocart.............................................................addtocart
 
 
-def add_to_cart(request):
-    if request.method == 'POST':
-        product_id = request.POST.get('product_id')
-        price = request.POST.get('price')
 
-        try:
-            decimal_price = Decimal(price)
-        except (InvalidOperation, TypeError):
-            # Handle the case where the price is not a valid decimal
-            # You can return a JSON response with an error message
-            return JsonResponse({'message': 'Invalid price'}, status=400)
-
-        cart, _ = Cart.objects.get_or_create(user=request.user)
-        product = get_object_or_404(Product, id=product_id)
-
-        # Check if the cart item already exists
-        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product, price=decimal_price)
-        if not created:
-            # Increment the quantity
-            cart_item.quantity += 1
-            cart_item.save()
-
-        # Update the cart total
-        cart.total += decimal_price
-        cart.save()
-
-        # Return a success JSON response
-        return JsonResponse({'message': 'Item added to cart successfully'})
-
-    # Return a JSON response for unsupported methods
-    return JsonResponse({'message': 'Method not allowed'}, status=405)
 
 
 

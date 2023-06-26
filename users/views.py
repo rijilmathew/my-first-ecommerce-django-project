@@ -4,6 +4,10 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.core.paginator import Paginator
+from carts.models import CartItem
+from carts.views import _cart_id  
+
+
 
 
 
@@ -23,6 +27,7 @@ def index(request):
         new_arrivals = Product.objects.filter(new_arrival=True) # Fetch the first three new arrival products
         context['best_products'] = best_products
         context['new_arrivals'] = new_arrivals
+        
 
     return render(request, 'layouts/index.html', context)        
 
@@ -93,14 +98,20 @@ def product_by_category(request, id):
 
 
 
+
+
 def single_product(request, id):
     product = get_object_or_404(Product, id=id)
+    in_cart = CartItem.objects.filter(cart__cart_id=_cart_id(request),product = product).exists()
+   
     context = {
-        'product': product
+        'product': product,
+        'in_cart': in_cart
     }
     return render(request, 'layouts/single_product.html', context)
 
 
+   
 def checkout(request):
     return render(request,'layouts/checkout.html')
 

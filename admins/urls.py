@@ -39,7 +39,7 @@ urlpatterns = [
     path('brand_update/<str:id>',views.brand_update,name='brand_update'),
     path('brand_delete/<str:id>', views.brand_delete,name='brand_delete'),
     path('change_brand_block_status/<str:id>', views.change_brand_block_status,name='change_brand_block_status'),
-    path('add_to_cart',views.add_to_cart,name='add_to_cart'),
+    
 
    
 

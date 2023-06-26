@@ -7,5 +7,4 @@ admin.site.register(ProductBrand)
 admin.site.register(ProductCategory)
 admin.site.register(Product)
 admin.site.register(ProductImage)
-admin.site.register(Cart)
-admin.site.register(CartItem)
+
