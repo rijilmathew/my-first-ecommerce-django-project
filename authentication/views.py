@@ -7,6 +7,8 @@ from .models import CustomUser
 from django.utils import timezone,datetime_safe
 from django.contrib import messages
 import re
+from carts.views import _cart_id 
+from carts.models import Cart,CartItem   
 
 
 # Create your views here.
@@ -95,14 +97,20 @@ def user_login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-        
-        user = authenticate(request, email=email, password=password)
+        user =authenticate(request, email=email, password=password)
         if user is not None:
+            try:
+                cart = Cart.objects.get(cart_id = _cart_id(request))
+                is_cart_item_exists = CartItem.objects.filter(cart=cart).exists()
+                if is_cart_item_exists:
+                    cart_item = CartItem.objects.filter(cart=cart)
+                    for item in cart_item:
+                        item.user=user
+                        item.save()
+            except Cart.DoesNotExist:
+                pass            
             login(request, user)
-            if user. is_superuser:
-                return redirect('admin_home')
-            else:
-                return redirect('/')
+            return redirect('/')
         else:
             messages.error(request, "Invalid Credentials")
             return redirect('user_login')

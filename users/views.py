@@ -7,6 +7,8 @@ from django.core.paginator import Paginator
 from carts.models import CartItem
 from carts.views import _cart_id  
 
+from django.http import HttpResponse
+
 
 
 
@@ -61,11 +63,7 @@ def product_home(request):
         'selected_category': category  # Pass the selected category to the template
     }
 
-    if 'q' in request.GET:
-        q = request.GET['q']
-        multiple_q = Q(Q(product_name__icontains=q) | Q(product_description__icontains=q))
-        products = products.filter(multiple_q)
-        context['products'] = products
+   
 
     return render(request, 'layouts/collections.html', context)
 
@@ -114,6 +112,19 @@ def single_product(request, id):
    
 def checkout(request):
     return render(request,'layouts/checkout.html')
+
+def search(request):
+    if 'keyword' in request.GET:
+        product_count = 0
+        keyword = request.GET['keyword']
+        if keyword:
+            products=Product.objects.order_by('-created_at').filter(Q(product_description__icontains=keyword) | Q(product_name__icontains=keyword))
+            product_count = products.count()
+        context = {
+            'products':products,
+            'product_count':product_count,
+        }    
+    return render(request,'layouts/collections.html',context)
 
 
 

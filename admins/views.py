@@ -229,32 +229,11 @@ def product_view(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
     return render(request, 'product_view.html', {'product': product})
 
-def search(request):
-    if 'keyword' in request.GET:
-        keyword =request.GET['keyword']
-        if keyword:
-            products = Product.objects.order_by('-created_date').filter(Q(product_description__icontains=keyword)|Q(product_name__icontains=keyword))#_icontains means it look for the whole description and if it found  anything related to the product then it will return the product
-            product_count = products.count()
-    context = {
-        'products': products,
-        'product_count':product_count,
-    }
-    return render(request, 'store/store.html', context)
-
- #USER
 
 def user_home(request):
     user = CustomUser.objects.all()
     # user = CustomUser.objects.exclude(is_admin=True).order_by('id')
     return render(request,'admins/user_home.html',{'users':user})
-
-
-
-
-
-
-
-
 # def user_edit(request,id):
 #     user = Account.objects.get(id=id)
 #     if request.method == 'POST':
