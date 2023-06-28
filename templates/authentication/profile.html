@@ -1,0 +1,26 @@
+{% extends 'layouts/main.html' %}
+{% load static %}
+
+{% block body %} 
+<div class="inner_page-banner one-img" style="text-align: center; background: url('{% static 'lap/images/smallbanner.jpeg' %}') no-repeat center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; -ms-background-size: cover; min-height: 350px;"></div> 
+
+<div class="d-flex align-items-center justify-content-center vh-100">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <h1 class="text-center">Profile</h1>
+        <div class="text-center">
+          <p>Name: {{ user.name }}</p>
+          <p>Email: {{ user.email }}</p>
+          <p>Phone Number: {{ user.phone_number }}</p>
+          <div class="btn-group" role="group">
+            <a href="{% url 'edit_profile' %}" class="btn btn-primary mr-2">Edit Profile</a>
+            <a href="{% url 'change_password' %}" class="btn btn-primary">Change Password</a>
+          </div>
+          <a href="{% url 'show_addresses' %}" class="btn btn-primary">View Address</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

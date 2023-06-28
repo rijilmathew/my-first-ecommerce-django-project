@@ -1,0 +1,79 @@
+{% extends 'layouts/main.html' %}
+{% load static %}
+
+{% block body %}
+
+<div class="inner_page-banner one-img" style="text-align: center; background: url('{% static 'lap/images/smallbanner.jpeg' %}') no-repeat center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; -ms-background-size: cover; min-height: 350px;"></div> 
+
+<h2>Your Addresses</h2>
+
+{% if addresses %}
+  <ul class="list-group">
+    {% for address in addresses %}
+      <li class="list-group-item">
+        <strong>Name:</strong> {{ user.name }}<br>
+        <strong>Email:</strong> {{ user.email }}<br>
+        <strong>Phone:</strong> {{ user.phone_number }}<br>
+        <strong>Address:</strong> {{ address.street }}, {{ address.city }}, {{ address.state }}, {{ address.country }} - {{ address.pincode }}<br>
+        <strong>Landmark:</strong> {{ address.land_mark }}<br>
+        <a href="{% url 'edit_address' address.id %}" class="btn btn-primary">Edit</a>
+        <a href="{% url 'delete_address' address.id %}" class="btn btn-danger">Delete</a>
+        {% if user.default_address == address %}
+          <p>Default Address</p>
+        {% else %}
+          <form action="{% url 'choose_default_address' address.id %}" method="POST" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary">Set as Default Address</button>
+          </form>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No addresses found.</p>
+{% endif %}
+
+<a href="{% url 'add_address' %}" class="btn btn-primary">Add New Address</a>
+
+{% endblock %}
+
+
+
+
+
+
+{% comment %} {% extends 'layouts/main.html' %}
+{% load static %}
+
+{% block body %}
+
+<div class="inner_page-banner one-img" style="text-align: center; background: url('{% static 'lap/images/smallbanner.jpeg' %}') no-repeat center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; -ms-background-size: cover; min-height: 350px;"></div> 
+
+<h2>Your Addresses</h2>
+
+{% if addresses %}
+  <ul class="list-group">
+    {% for address in addresses %}
+      <li class="list-group-item">
+        {{ address.street }}, {{ address.city }}, {{ address.state }}, {{ address.country }} - {{ address.pincode }}
+        <p>Landmark: {{ address.land_mark }}</p>
+        <a href="{% url 'edit_address' address.id %}" class="btn btn-primary">Edit</a>
+        <a href="{% url 'delete_address' address.id %}" class="btn btn-danger">Delete</a>
+        {% if user.default_address == address %}
+          <p>Default Address</p>
+        {% else %}
+          <form action="{% url 'choose_default_address' address.id %}" method="POST" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary">Set as Default Address</button>
+          </form>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No addresses found.</p>
+{% endif %}
+
+<a href="{% url 'add_address' %}" class="btn btn-primary">Add New Address</a>
+
+{% endblock %} {% endcomment %}

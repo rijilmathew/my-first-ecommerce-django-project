@@ -8,7 +8,17 @@ from django.utils import timezone,datetime_safe
 from django.contrib import messages
 import re
 from carts.views import _cart_id 
-from carts.models import Cart,CartItem   
+from carts.models import Cart,CartItem
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
+from .forms import UserProfileForm
+from django.contrib.auth import update_session_auth_hash
+from django.urls import reverse
+from django.http import HttpResponseRedirect
+from .forms import UserAddressForm
+from .models import UserAddress
+from django.shortcuts import get_object_or_404
+from .models import UserProfile
 
 
 # Create your views here.
@@ -120,4 +130,100 @@ def user_logout(request):
     logout(request)
     messages.info(request,"Logout Success")
     return redirect('/')
+
+@login_required
+def profile(request):
+    user = request.user
+    return render(request, 'authentication/profile.html', {'user': user})
+
+@login_required
+def edit_profile(request):
+    user = request.user
+
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully.')
+            return redirect('profile')
+    else:
+        form = UserProfileForm(instance=user)
+    
+    return render(request, 'authentication/edit_profile.html', {'form': form})
+
+
+@login_required
+def change_password(request):
+    user = request.user
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Your password has been changed successfully.')
+            return redirect('profile')
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = PasswordChangeForm(user)
+    
+    return render(request, 'authentication/change_password.html', {'form': form})
+
+#..................................#adress.......................................
+@login_required
+def show_addresses(request):
+    addresses = UserAddress.objects.filter(user=request.user)
+    try:
+        user_profile = UserProfile.objects.get(user=request.user)
+        return render(request, 'authentication/show_addresses.html', {'addresses': addresses, 'user_profile': user_profile})
+    except UserProfile.DoesNotExist:
+        print('user none')
+        # Handle the case where UserProfile does not exist for the user
+        return render(request, 'authentication/show_addresses.html', {'addresses': addresses, 'user_profile': None})
+
+
+@login_required
+def add_address(request):
+    if request.method == 'POST':
+        form = UserAddressForm(request.POST)
+        if form.is_valid():
+            address = form.save(commit=False)
+            address.user = request.user
+            address.save()
+            messages.success(request, 'Address added successfully.')
+            return redirect('show_addresses')
+    else:
+        form = UserAddressForm()
+    return render(request, 'authentication/add_address.html', {'form': form})
+
+@login_required
+def edit_address(request, address_id):
+    address = get_object_or_404(UserAddress, id=address_id, user=request.user)
+    if request.method == 'POST':
+        form = UserAddressForm(request.POST, instance=address)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Address updated successfully.')
+            return redirect('show_addresses')
+    else:
+        form = UserAddressForm(instance=address)
+    return render(request, 'authentication/edit_address.html', {'form': form, 'address': address})
+
+
+@login_required
+def delete_address(request, address_id):
+    address = get_object_or_404(UserAddress, id=address_id, user=request.user)
+    address.delete()
+    messages.success(request, 'Address deleted successfully.')
+    return redirect('show_addresses')
+
+@login_required
+def choose_default_address(request, address_id):
+    address = get_object_or_404(UserAddress, id=address_id, user=request.user)
+    request.user.default_address = address
+    request.user.save()
+    messages.success(request, 'Default address updated successfully.')
+    return redirect('show_addresses')
+
 
