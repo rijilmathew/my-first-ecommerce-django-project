@@ -110,7 +110,7 @@ def user_login(request):
             except Cart.DoesNotExist:
                 pass            
             login(request, user)
-            return redirect('/')
+            return redirect('/') 
         else:
             messages.error(request, "Invalid Credentials")
             return redirect('user_login')

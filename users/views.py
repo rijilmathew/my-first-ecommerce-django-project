@@ -109,6 +109,7 @@ def single_product(request, id):
     return render(request, 'layouts/single_product.html', context)
 
 
+
    
 def checkout(request):
     return render(request,'layouts/checkout.html')
