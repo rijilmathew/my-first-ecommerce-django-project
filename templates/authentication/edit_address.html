@@ -4,6 +4,77 @@
 {% block body %}
 
 <div class="inner_page-banner one-img" style="text-align: center; background: url('{% static 'lap/images/smallbanner.jpeg' %}') no-repeat center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; -ms-background-size: cover; min-height: 350px;"></div> 
+<h2>{{ user.name }} - Edit Your Address</h2>
+
+<form method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+  
+  <div class="form-group">
+    <label for="id_first_name">First Name</label>
+    {{ form.first_name }}
+  </div>
+  
+  <div class="form-group">
+    <label for="id_last_name">Last Name</label>
+    {{ form.last_name }}
+  </div>
+  
+  <div class="form-group">
+    <label for="id_email">Email</label>
+    {{ form.email }}
+  </div>
+  
+  <div class="form-group">
+    <label for="id_phone_number">Phone Number</label>
+    {{ form.phone_number }}
+  </div>
+  
+  <div class="form-group">
+    <label for="id_street">Street</label>
+    {{ form.street }}
+  </div>
+  
+  <div class="form-group">
+    <label for="id_city">City</label>
+    {{ form.city }}
+  </div>
+  
+  <div class="form-group">
+    <label for="id_state">State</label>
+    {{ form.state }}
+  </div>
+  
+  <div class="form-group">
+    <label for="id_country">Country</label>
+    {{ form.country }}
+  </div>
+  
+  <div class="form-group">
+    <label for="id_pincode">Pincode</label>
+    {{ form.pincode }}
+  </div>
+  
+  <div class="form-group">
+    <label for="id_land_mark">Landmark</label>
+    {{ form.land_mark }}
+  </div>
+  
+  <button type="submit" class="btn btn-primary">Update Address</button>
+</form>
+
+{% endblock %}
+
+
+
+
+
+
+{% comment %} {% extends 'layouts/main.html' %}
+{% load static %}
+
+{% block body %}
+
+<div class="inner_page-banner one-img" style="text-align: center; background: url('{% static 'lap/images/smallbanner.jpeg' %}') no-repeat center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; -ms-background-size: cover; min-height: 350px;"></div> 
 <h2>{{ user.name }} - Edit your  Address</h2>
 
 <form method="POST" enctype="multipart/form-data">
@@ -42,4 +113,4 @@
   <button type="submit" class="btn btn-primary">Update Address</button>
 </form>
 
-{% endblock %}
+{% endblock %} {% endcomment %}

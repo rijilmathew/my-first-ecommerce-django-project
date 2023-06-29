@@ -41,6 +41,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    
     # Add additional fields as per your requirements
 
     def __str__(self):
@@ -48,15 +49,35 @@ class UserProfile(models.Model):
 
 
 
+
+
 class UserAddress(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=100, null=True, default=None)
+    last_name = models.CharField(max_length=100, null=True, default=None)
+    email = models.EmailField(null=True, default=None)
+    phone_number = models.CharField(max_length=20, null=True, default=None)
     street = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
     country = models.CharField(max_length=100)
     pincode = models.CharField(max_length=10)
     land_mark = models.CharField(max_length=100)
+    is_default = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.street}, {self.city}, {self.state}, {self.country}"
+
+
+# class UserAddress(models.Model):
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+#     street = models.CharField(max_length=100)
+#     city = models.CharField(max_length=100)
+#     state = models.CharField(max_length=100)
+#     country = models.CharField(max_length=100)
+#     pincode = models.CharField(max_length=10)
+#     land_mark = models.CharField(max_length=100)
+
+#     def __str__(self):
+#         return f"{self.street}, {self.city}, {self.state}, {self.country}"
 

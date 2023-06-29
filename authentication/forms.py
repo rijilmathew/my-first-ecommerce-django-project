@@ -25,7 +25,7 @@ class PasswordChangeForm(DjangoPasswordChangeForm):
 class UserAddressForm(forms.ModelForm):
     class Meta:
         model = UserAddress
-        fields = ['street', 'city', 'state', 'country', 'pincode', 'land_mark']
+        fields = ['first_name', 'last_name', 'email', 'phone_number', 'street', 'city', 'state', 'country', 'pincode', 'land_mark']
 
 
 class ChooseDefaultAddressForm(forms.Form):

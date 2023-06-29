@@ -19,6 +19,7 @@ from .forms import UserAddressForm
 from .models import UserAddress
 from django.shortcuts import get_object_or_404
 from .models import UserProfile
+import requests
 
 
 # Create your views here.
@@ -120,7 +121,16 @@ def user_login(request):
             except Cart.DoesNotExist:
                 pass            
             login(request, user)
-            return redirect('/') 
+            url = request.META.get('HTTP_REFERER')
+            try:
+                query = requests.utils.urlparse(url).query
+                params = dict(x.split('=')for x in query.split('&'))
+                if 'next' in params:
+                    nextPage = params['next']
+                    return redirect(nextPage)
+            except:
+                   return redirect('/') 
+            
         else:
             messages.error(request, "Invalid Credentials")
             return redirect('user_login')
@@ -221,8 +231,9 @@ def delete_address(request, address_id):
 @login_required
 def choose_default_address(request, address_id):
     address = get_object_or_404(UserAddress, id=address_id, user=request.user)
-    request.user.default_address = address
-    request.user.save()
+    UserAddress.objects.filter(user=request.user).update(is_default=False)
+    address.is_default = True
+    address.save()
     messages.success(request, 'Default address updated successfully.')
     return redirect('show_addresses')
 
