@@ -8,7 +8,7 @@ from django.utils import timezone,datetime_safe
 from django.contrib import messages
 import re
 from carts.views import _cart_id 
-from carts.models import Cart,CartItem
+from carts.models import Cart,CartItem,Order
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from .forms import UserProfileForm
@@ -22,6 +22,7 @@ from .models import UserProfile
 import requests
 
 
+
 # Create your views here.
 def signup(request):
     if request.method == 'POST':
@@ -30,13 +31,13 @@ def signup(request):
         name = request.POST.get('name')
         phone_number = request.POST.get('phone_number')
 
-          # Password validation
+        # Password validation
         password_pattern = r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{6,}$'
         if not re.match(password_pattern, password):
             messages.error(request, "Password must contain at least one uppercase letter, one digit, one special character, and be at least 6 characters long.")
             return redirect('signup')
         
-         # Name validation
+        # Name validation
         if not re.match(r'^[a-zA-Z]+$', name):
             messages.error(request, "Name must only contain letters.")
             return redirect('signup')
@@ -45,22 +46,22 @@ def signup(request):
         if not phone_number.isdigit() or len(phone_number) != 10:
             messages.error(request, "Phone number must contain only 10 digits.")
             return redirect('signup')
-
-      
+        if CustomUser.objects.filter(email=email).exists():
+            messages.error(request, "Email already exists. Please use a different email.")
+            return redirect('signup')
         # Generate OTP
         import random
         otp = ''.join(random.choices('0123456789', k=6))
         
-        # Create user
-        user = CustomUser.objects.create_user(
-            email=email,
-            password=password,
-            name=name,
-            phone_number=phone_number,
-            otp=otp,
-            is_active=False
-        )
-        
+        # Save user data in session
+        request.session['signup_data'] = {
+            'email': email,
+            'password': password,
+            'name': name,
+            'phone_number': phone_number,
+            'otp': otp
+        }
+
         # Send OTP email
         send_mail(
             'Email Verification',
@@ -69,7 +70,7 @@ def signup(request):
             [email],
             fail_silently=False
         )
-        request.session['otp_created_at'] = timezone.now().isoformat()
+        
         return redirect('verify_otp')
     
     return render(request, 'authentication/signup.html')
@@ -81,35 +82,43 @@ def verify_otp(request):
         otp = request.POST.get('otp')
         
         try:
-            user = CustomUser.objects.get(email=email, otp=otp)
-            otp_created_at_str = request.session.get('otp_created_at')
-
-            if otp_created_at_str is None:
+            # Retrieve user data from session
+            signup_data = request.session.get('signup_data')
+            if not signup_data:
                 return redirect('verify_otp')
-            otp_created_at = datetime_safe.datetime.fromisoformat(otp_created_at_str)
-            current_time = timezone.now()
-            if (current_time - otp_created_at).total_seconds() > 300:
-                error_message = 'OTP has expired. Please request a new OTP.'
+            
+            # Validate OTP
+            if otp != signup_data['otp']:
+                error_message = 'Invalid OTP. Please try again.'
                 return render(request, 'authentication/verify_otp.html', {'error_message': error_message})
-            user.is_active = True
-            user.save()
-
-            customers = CustomUser.objects.all()
-
-
-            request.session.pop('otp_created_at')
+            
+            # Clear the session data
+            request.session.pop('signup_data')
+            
+            # Create user and save it to the database only after OTP verification
+            user = CustomUser.objects.create_user(
+                email=signup_data['email'],
+                password=signup_data['password'],
+                name=signup_data['name'],
+                phone_number=signup_data['phone_number'],
+                otp=signup_data['otp'],
+                is_active=True
+            )
+            
+            # Redirect to user login or any other desired page
             return redirect('user_login')
         except CustomUser.DoesNotExist:
             return redirect('verify_otp')
     
     return render(request, 'authentication/verify_otp.html')
+
     
 def user_login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
         user =authenticate(request, email=email, password=password)
-        if user is not None:
+        if user is not None and not user.is_staff:
             try:
                 cart = Cart.objects.get(cart_id = _cart_id(request))
                 is_cart_item_exists = CartItem.objects.filter(cart=cart).exists()
@@ -128,6 +137,7 @@ def user_login(request):
                 if 'next' in params:
                     nextPage = params['next']
                     return redirect(nextPage)
+                    
             except:
                    return redirect('/') 
             
@@ -136,12 +146,15 @@ def user_login(request):
             return redirect('user_login')
     
     return render(request, 'authentication/login.html')
+
+
+
 def user_logout(request):
     logout(request)
     messages.info(request,"Logout Success")
     return redirect('/')
 
-@login_required
+@login_required(login_url='user_login')
 def profile(request):
     user = request.user
     return render(request, 'authentication/profile.html', {'user': user})
@@ -228,12 +241,21 @@ def delete_address(request, address_id):
     messages.success(request, 'Address deleted successfully.')
     return redirect('show_addresses')
 
+
 @login_required
 def choose_default_address(request, address_id):
     address = get_object_or_404(UserAddress, id=address_id, user=request.user)
+    
+    if address.is_default:
+        order = Order.objects.filter(user=request.user).first()
+        if order:
+            order.shipping_address = address
+            order.save()
+    
     UserAddress.objects.filter(user=request.user).update(is_default=False)
     address.is_default = True
     address.save()
+    
     messages.success(request, 'Default address updated successfully.')
     return redirect('show_addresses')
 

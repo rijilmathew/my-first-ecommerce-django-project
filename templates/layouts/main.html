@@ -45,6 +45,7 @@
       <!--//price range-->
       <!--stylesheets-->
       <link href="{% static 'css/style.css' %}" rel='stylesheet' type='text/css' media="all">
+      <link href="{% static 'css/mycss.css' %}" rel='stylesheet' type='text/css' media="all">
       <!--//stylesheets-->
       <link href="//fonts.googleapis.com/css?family=Sunflower:500,700" rel="stylesheet">
       <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700" rel="stylesheet">
@@ -57,7 +58,13 @@
          {% endblock body %}
 
          {% include "inc/footer.html" %}  
+
+         {% block scripts %}
+   
+         {% endblock scripts%}
+
    </body>
+   
 
       
       <!--js working-->
@@ -171,6 +178,32 @@
       <!--bootstrap working-->
       <script src="{% static 'js/bootstrap.min.js' %}"></script>
       <!-- //bootstrap working-->
+
+
+
+         <!--coupon  working-->
+       <script>
+         document.addEventListener('DOMContentLoaded', function() {
+            var couponButtons = document.querySelectorAll('.coupon-btn');
+            var couponCodeInput = document.getElementById('coupon_code');
+
+            couponButtons.forEach(function(button) {
+                  button.addEventListener('click', function() {
+                     var code = this.dataset.code;
+                     couponCodeInput.value = code;
+                  });
+            });
+         });
+      </script> 
+
+
+
+
+
+
+         <!--bootstrap working-->       
+
+      
    
     
    

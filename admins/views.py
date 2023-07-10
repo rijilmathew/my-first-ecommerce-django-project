@@ -8,9 +8,11 @@ from decimal import Decimal
 from django.http import HttpResponse
 from decimal import Decimal, InvalidOperation
 from django.http import JsonResponse
-
+from django.contrib import messages
 from .models import *
 from authentication.models import *
+from carts.models import *
+from django.contrib.auth import get_user_model
 
 
 
@@ -19,11 +21,30 @@ from authentication.models import *
 def admin_home(request):
     return render(request,'admins/admin_home.html')
 
+def admin_login(request):
+    if request.method=='POST':
+        email=request.POST['email']
+        password=request.POST['password']
+        user=authenticate(email=email,password=password)
+    
+        if user is not None:
+            login(request,user)
+            print(request.user.is_staff)
+            if request.user.is_staff==True:
+                return redirect('admin_home')
+            else:
+                messages.error(request,'Your Email or Password is Incorrect!!')
+                return redirect('admin_login')
+        else:
+            messages.error(request,"Your Email or Password is Incorrect!!")
+            return redirect('admin_login')
+    return render(request,'admins/admin_login.html')
+
 
 def admin_logout(request):
     if request.user.is_authenticated:
         logout(request)
-        return redirect('/')   
+        return redirect('admin_login')   
 
 def customers(request):
     customers = CustomUser.objects.filter(is_active=True,is_superuser=False)
@@ -272,6 +293,105 @@ def unblock_user(request, id):
 
 #addtocart.............................................................addtocart
 
+def order_list(request):
+    orders = Order.objects.all().select_related('user','shipping_address').order_by('-order_date')
+    order_items = OrderItem.objects.all()
+    users = get_user_model().objects.all()
+    default_addresses = UserAddress.objects.filter(user__in=users, is_default=True)
+    products = Product.objects.all()
+    # singleproducts = Product.objects.all()
+   
+    product_totals = {}
+    for order_item in order_items:
+        product_total = order_item.quantity * order_item.product.product_price
+        product_totals[order_item.id] = product_total
+    
+    context = {
+        'orders': orders,
+        'order_items': order_items,
+        'users': users,
+        'default_addresses': default_addresses,
+        'products': products,
+        'product_totals': product_totals,
+    }
+    return render(request, 'admins/oder_list.html',context)  
+
+def order_edit(request):
+    orders = Order.objects.all()
+    context = {'orders':orders}
+    return redirect('order_list', context)
+
+def order_update(request,id):
+    order_status = get_object_or_404(Order, id=id)
+    if request.method == 'POST':
+        status = request.POST.get('order_status')
+        order_status.order_status = status
+        order_status.save()
+        return redirect('order_list')
+    return render(request, 'admins/oder_list.html')
+
+
+#coupon.............................................................coupon 
+def coupon(request):
+    coupons = Coupon.objects.all()
+    context = {
+        'coupons': coupons
+    }
+    return render(request, 'admins/coupon.html', context)
+
+
+def coupon_add(request):
+    if request.method == 'POST':
+        # Process the form submission and create a new coupon
+        coupon_name = request.POST.get('coupon_name')
+        code = request.POST.get('code')
+        valid_from = request.POST.get('valid_from')
+        valid_to = request.POST.get('valid_to')
+        discount_price = request.POST.get('discount_price')
+        active = request.POST.get('active')== 'true'
+        
+        coupon = Coupon.objects.create(
+            coupon_name=coupon_name,
+            code=code,
+            valid_from=valid_from,
+            valid_to=valid_to,
+            discount_price=discount_price,
+            active=active
+        )
+        coupon.save()
+        # Redirect to the coupon list page
+        return redirect('coupon')
+    return render(request, 'admins/coupon.html')
+
+
+def coupon_edit(request, coupon_id):
+    coupon = get_object_or_404(Coupon, id=coupon_id)
+
+    if request.method == 'POST':
+        # Process the form submission and update the coupon
+        coupon.coupon_name = request.POST.get('coupon_name')
+        coupon.code = request.POST.get('code')
+        coupon.valid_from = request.POST.get('valid_from')
+        coupon.valid_to = request.POST.get('valid_to')
+        coupon.discount_price = request.POST.get('discount_price')
+        coupon.active = request.POST.get('active')== 'true'
+        coupon.save()
+        
+        # Redirect to the coupon list page
+        return redirect('coupon')
+    return render(request, 'admin/coupon.html', {'coupon': coupon})
+
+
+def coupon_delete(request, coupon_id):
+    coupon = get_object_or_404(Coupon, id=coupon_id)
+
+    if request.method == 'POST':
+        # Delete the coupon
+        coupon.delete()
+        
+        # Redirect to the coupon list page
+        return redirect('coupon')
+    return HttpResponse("Invalid Request")
 
 
 

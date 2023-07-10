@@ -1,0 +1,49 @@
+{% extends 'layouts/main.html' %}
+{% load static %}
+
+{% block body %}
+<div class="inner_page-banner one-img" style="text-align: center; background: url('{% static 'lap/images/smallbanner.jpeg' %}') no-repeat center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; -ms-background-size: cover; min-height: 350px;"></div> 
+<div class="container my-3">
+    <div class="row">
+        <div class="col-md-12">
+            <div class = "card shadow">
+                <div class = "card-header">
+                   <h3 class = "mb-0"> My Orders</h3>
+                </div>
+                <div class ="card-body">
+                    <table class = "table table-bordered">
+                       <thead>
+                          <tr>
+                              <th>Order Date</th>
+                              <th> Tracking Number</th>
+                              <th> Total Price</th>
+                              <th>Status</th>
+                              <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in orders %}
+                              <tr>
+                                  <td>{{item.order_date}}</td>
+                                  <td>{{item.order_no}}</td>
+                                  <td>{{item.total_mrp}}</td>
+                                  <td>{{item.order_status}}</td>
+                                  <td>
+                                     <a href="{% url 'vieworder' item.order_no %}" class="btn btn-primary">View</a>
+                                  </td>
+                              </tr>
+                            {% endfor %}
+                        </tbody>
+                       
+                       
+                       
+                    
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

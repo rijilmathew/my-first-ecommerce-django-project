@@ -8,9 +8,9 @@ from django.conf.urls.static import static
 urlpatterns = [
    path('',views.index,name="index"),
    path('product_home',views.product_home,name="product_home"),
-   path('product_by_brand',views.product_by_brand,name="product_by_brand"),
+   # path('product_by_brand',views.product_by_brand,name="product_by_brand"),
    path('single_product/<int:id>/', views.single_product, name="single_product"),
-   path('checkout',views.checkout,name="checkout"),
+   # path('checkout',views.checkout,name="checkout"),
    path('search',views.search,name="search"),
   
   

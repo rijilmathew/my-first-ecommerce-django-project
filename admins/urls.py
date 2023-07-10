@@ -13,7 +13,7 @@ urlpatterns = [
     
 
 
-   
+    path('',views.admin_login,name='admin_login'),
     path('admin_home', views.admin_home, name='admin_home'),
     path('product_list', views.product_list,name='product_list'),
     path('product_add', views.product_add,name='product_add'),
@@ -39,6 +39,16 @@ urlpatterns = [
     path('brand_delete/<str:id>', views.brand_delete,name='brand_delete'),
     path('change_brand_block_status/<str:id>', views.change_brand_block_status,name='change_brand_block_status'),
     
+    path('order_list', views.order_list,name='order_list'),
+    # path('order_update/<int:pk>/', views.order_update, name='order_update'),
+    path('order_update/<int:id>/', views.order_update, name='order_update'),
+    path('coupon', views.coupon,name='coupon'),
+    # path('admin_dashboard/coupons/', views.coupon_list, name='coupon_list'),
+    path('coupon-add', views.coupon_add, name='coupon_add'),
+    path('coupon_edit/<int:coupon_id>/', views.coupon_edit, name='coupon_edit'),
+    path('coupon-delete/<int:coupon_id>/', views.coupon_delete, name='coupon_delete'),
+
+
 
    
 

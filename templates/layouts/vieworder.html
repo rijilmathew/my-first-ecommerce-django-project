@@ -1,0 +1,94 @@
+{% extends 'layouts/main.html' %}
+{% load static %}
+
+{% block body %}
+<div class="inner_page-banner one-img" style="text-align: center; background: url('{% static 'lap/images/smallbanner.jpeg' %}') no-repeat center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; -ms-background-size: cover; min-height: 350px;"></div> 
+<div class="container my-3">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header">
+                   <h3 class="mb-0">Order View
+                       <a href="{% url 'order_history' %}" class="btn btn-warning float-end text-white"> <i class="fa fa-reply"></i> Back</a>
+                    </h3>
+                </div>
+                <div class="card-body">
+                     <div class="row">
+                         <div class="col-md-6">
+                               <h4>Shipping Details</h4>
+                               <hr>
+                               <label class="mt-2">First Name</label>
+                                <div class="border p-1">{{ shipping_address.fname }}</div>
+                                <label class="mt-2">Last Name</label>
+                                <div class="border p-1">{{ shipping_address.lname }}</div>
+                                <label class="mt-2">Email</label>
+                                <div class="border p-1">{{ shipping_address.email }}</div>
+                                <label class="mt-2">Phone Number</label>
+                                <div class="border p-1">{{ shipping_address.phone }}</div>
+                                <label class="mt-2">Address</label>
+                                <div class="border p-1">{{ shipping_address.address }}, {{ shipping_address.city }}, {{ shipping_address.state }}</div>
+                                <label class="mt-2">Pin Code</label>
+                                <div class="border p-1">{{ shipping_address.pincode }}</div>
+                          </div>
+                          <div class="col-md-6">
+                            <h4>Order Details</h4>
+                               <hr>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>Image</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in order_items %}
+                                            <tr>
+                                                <td>{{ item.product.product_name }}</td>
+                                                <td>{{ item.quantity }}</td>
+                                                <td>{{ item.product.product_price }}</td>
+                                                <td>
+                                                    <img src="{{ item.product.product_thumbnail.url }}" height="50px" width="50px" alt="Product Image">
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>   
+                       
+                                {% comment %} <h4>Grand Total:<span class="float-end">{{ order.payment_amount }}</span></h4> {% endcomment %}
+                                <h4>Grand Total: <span class="float-end">{{order.total_mrp}}</span></h4>
+                                {% if order.coupon.discount_price %}
+                                <h4>Discount Price:{{order.coupon.coupon_name}} coupon <span class="float-end">{{ order.coupon.discount_price }}</span></h4>
+                                {% endif %}
+                                <h2>Payment Amount: <span class="float-end">{{ order.payment_amount }}</span></h2>
+
+
+
+                                <h6 class="border p-2">Payment Mode: {{ order.payment_method }}</h6>
+                                <h6 class="border p-2">Order Status: {{ order.order_status }}</h6>
+                                <h6 class="border p-2">Order Number: {{ order.order_no }}</h6>
+                                <h6 class="border p-2">Payment Mode: {{ order.payment_method }}</h6>
+                          </div>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

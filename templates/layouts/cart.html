@@ -2,7 +2,7 @@
 {% load static%}
 
 {% block body %}
-<div class="inner_page-banner one-img" style="text-align: center; background: url('{% static 'lap/images/smallbanner.jpeg' %}') no-repeat center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; -ms-background-size: cover; min-height: 350px;"></div>
+<div class="inner_page-banner one-img" style="text-align: center; background: url('{% static 'lap/images/blackbanner.jpg' %}') no-repeat center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; -ms-background-size: cover; min-height: 350px;"></div>
 <br>
 <br>
 <section class="section-content padding-y bg">
@@ -89,17 +89,17 @@
                 <dt>Total price:</dt>
                 <dd class="text-right">rs {{total}}</dd>
             </dl>
-            <dl class="dlist-align">
+            {% comment %} <dl class="dlist-align">
                 <dt>Tax:</dt>
                 <dd class="text-right"> rs {{tax}}</dd>
-            </dl>
+            </dl> {% endcomment %}
             <dl class="dlist-align">
                 <dt>Grand Total:</dt>
                 <dd class="text-right text-dark b"><strong>rs {{grand_total}}</strong></dd>
             </dl>
             <hr>
             <p class="text-center mb-3">
-                <img src="{% static './images/misc/payments.png'%}" height="26">
+                <img src="{% static 'lap/images/payment.png' %}" height="26">
             </p>
             <a href="{% url 'checkout'%}" class="btn btn-primary btn-block"> Checkout </a>
             <a href="{%url 'product_home' %}" class="btn btn-light btn-block">Continue Shopping</a>

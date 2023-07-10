@@ -13,7 +13,7 @@
          <div class="modal-body">
             <ul>
                <li><a href="{% url 'profile' %}">Profile</a></li>
-               <li><a href="#">Orders</a></li>
+               <li><a href="{% url 'order_history' %}">Orders</a></li>
                <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
          </div>
@@ -37,7 +37,9 @@
             <div class="cart-icons">
                <ul>
                   <li>
-                     <span class="far fa-heart"></span>
+                     <a href="{% url 'wishlist' %}">
+                        <span class="far fa-heart"></span>
+                     </a>
                   </li>
                   <li class="toyscart toyscart2 cart cart box_1">
                      <form action="{% url 'cart' %}" method="post" class="last">

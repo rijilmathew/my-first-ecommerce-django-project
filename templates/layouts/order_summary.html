@@ -1,0 +1,128 @@
+{% extends 'layouts/main.html' %}
+{% load static %}
+
+{% block body %}
+<div class="inner_page-banner one-img" style="text-align: center; background: url('{% static 'lap/images/smallbanner.jpeg' %}') no-repeat center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; -ms-background-size: cover; min-height: 350px;">
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h2>Order Summary</h2>
+      <p>Order Number: {{ order.id }}</p>
+      <p style="font-size: 1.2rem; font-weight: 600;">Shipping Address:</p>
+      <p style="font-size: 1.2rem; font-weight: 600;">{{ order.shipping_address.first_name }} {{ order.shipping_address.last_name }}</p>
+      <p style="font-size: 1rem;">{{ order.shipping_address.email }}</p>
+      <p style="font-size: 1rem;">{{ order.shipping_address.street }}</p>
+      <p style="font-size: 1rem;">{{ order.shipping_address.city }}, {{ order.shipping_address.state }}</p>
+      <p style="font-size: 1rem;">{{ order.shipping_address.country }}, {{ order.shipping_address.pincode }}</p>
+      <p style="font-size: 1rem;">{{ order.shipping_address.land_mark }}</p>
+      <p style="font-size: 1.2rem; font-weight: 600;">Payment Method: {{ order.payment_method }}</p>
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th style="font-size: 1.2rem; font-weight: 600;">Product</th>
+              <th style="font-size: 1.2rem; font-weight: 600;">Quantity</th>
+              
+
+              {% comment %} <th>Subtotal</th> {% endcomment %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for order_item in order_items %} 
+            <tr>
+              <td style="font-size: 1rem;">{{ order_item.product }}</td>
+              <td style="font-size: 1rem;">{{ order_item.quantity }}</td>
+              
+              {% comment %} <td>{{ order_items.sub_total }}</td> {% endcomment %}
+            </tr>
+            {% endfor %}  
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size: 1.2rem; font-weight: 600;">Total Amount: {{ order.total_mrp }}</p>
+      <!-- Display any other relevant order information -->
+    </div>
+  </div>
+</div>
+
+<style>
+  .inner_page-banner {
+    background-image: url(https://www.lap.com/images/smallbanner.jpeg);
+    background-size: cover;
+    min-height: 350px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th, td {
+    padding: 10px;
+    text-align: center;
+  }
+  th {
+    background-color: #f2f2f2;
+  }
+  .table-responsive {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  p {
+    font-family: sans-serif;
+    font-size: 1rem;
+  }
+  
+  p.important {
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+</style>
+
+{% endblock %}
+
+
+
+
+
+{% comment %} {% extends 'layouts/main.html' %}
+{% load static %}
+
+{% block body %} 
+<div class="inner_page-banner one-img" style="text-align: center; background: url('{% static 'lap/images/smallbanner.jpeg' %}') no-repeat center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; -ms-background-size: cover; min-height: 350px;"></div> 
+<h2>Order Summary</h2>
+<p>Order Number: {{ order.id }}</p>
+<p>Name: {{ default_address.first_name }} {{ default_address.last_name }}</p>
+<p>Email:{{ default_address.email}}</p>
+<p>address:{{ default_address }}</p>
+<p>Payment Method: {{ order.payment_method }}</p>
+
+
+ <div class="table-responsive">
+    <table class="table-responsive">
+      <thead class="thead-dark">
+        <tr>
+          <th>Product</th>
+          <th>Quantity</th>
+        
+
+       
+        </tr>
+      </thead>
+      <tbody>
+        {% for order_item in order_items %} 
+        <tr>
+          <td>{{ order_item.product }}</td>
+          <td>{{ order_item.quantity }}</td>
+          
+         
+        </tr>
+        {% endfor %}  
+      </tbody>
+    </table>
+  </div>
+      
+<p>Total Amount: {{ order.total_mrp }}</p>
+<!-- Display any other relevant order information -->
+{% endblock %} {% endcomment %}

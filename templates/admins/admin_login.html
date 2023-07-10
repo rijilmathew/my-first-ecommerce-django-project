@@ -1,73 +1,59 @@
-{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Admin Login</title>
+  <title>Bootstrap Form Example</title>
+  <!-- Add Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+     body {
+      background-color: black;
+      color: white;
+    }
+    .center-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-    <!-- Font Icon -->
-    <link rel="stylesheet" href="{% static 'fonts1/material-icon/css/material-design-iconic-font.min.css' %}">
-
-    <!-- Main css -->
-    <link rel="stylesheet" href="{% static 'css1/style.css' %}">
+    .short-input {
+      max-width: 200px;
+    }
+  </style>
 </head>
+
 <body>
 
-    <div class="main" style="padding-top: 30px;">
-
-        <!-- Sing in  Form -->
-        <section class="sign-in">
-            <div class="container">
-                <div class="signin-content">
-                    <div class="signin-image">
-                        <figure><img src="{% static 'images1/admin_login1.webp' %}" alt="sing up image"></figure>
-                        <!-- <a href="{% url 'user_register' %}" class="signup-image-link">Create an account</a> -->
-                    </div>
-
-                    <div class="signin-form">
-                        <h2 class="form-title">Admin Login</h2>
-                        <form method="post" class="register-form" id="login-form">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <label for="email"><i class="zmdi zmdi-account material-icons-name"></i></label>
-                                <input type="email" name="email" id="your_name" placeholder="Email Adress"/>
-                            </div>
-                            <div class="form-group">
-                                <label for="your_pass"><i class="zmdi zmdi-lock"></i></label>
-                                <input type="password" name="password" id="your_pass" placeholder="Password"/>
-                            </div>
-                            <div class="form-group">
-                                <input type="checkbox" name="remember-me" id="remember-me" class="agree-term" />
-                                <label for="remember-me" class="label-agree-term"><span><span></span></span>Remember me</label>
-                            </div>
-                            <div style="display: flex;">
-                            <div class="form-group form-button">
-                                <input type="submit" name="signin" id="signin" class="form-submit" value="Log in"/>
-                            </div>&nbsp;&nbsp;&nbsp;
-                            <!-- <div class="form-group form-button" >
-                                <a href="" ><input type="button" style="background-color:red" name="cancel" id="signin" class="form-submit" value="Cancel"/></a>
-                            </div> -->
-                            </div>
-                        </form>
-                        <!-- <div class="social-login">
-                            <span class="social-label">Or login with</span>
-                            <ul class="socials">
-                                <li><a href="#"><i class="display-flex-center zmdi zmdi-facebook"></i></a></li>
-                                <li><a href="#"><i class="display-flex-center zmdi zmdi-twitter"></i></a></li>
-                                <li><a href="#"><i class="display-flex-center zmdi zmdi-google"></i></a></li>
-                            </ul>
-                        </div> -->
-                    </div>
-                </div>
-            </div>
-        </section>
-
+  <div class="container center-container">
+    <div>
+      <h2 class="text-center mb-4">LapHub</h2>
+      <form action="" method="POST">
+      {% csrf_token %}
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" class="form-control short-input" id="name" name="email" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+          <label for="otp">Password:</label>
+          <input type="password" class="form-control short-input" id="password" name = "password" placeholder="Enter your password">
+        </div>
+        <div class="form-group form-check">
+          <label class="form-check-label">
+            <input class="form-check-input" type="checkbox"> Remember me
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+       <br><br>
+     
     </div>
+  </div>
 
-    <!-- JS -->
-    <script src="{% static 'vendor1/jquery/jquery.min.js' %}"></script>
-    <script src="{% static 'js1/main.js' %}"></script>
-</body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+  <!-- Add Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
 </html>

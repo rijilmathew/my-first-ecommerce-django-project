@@ -113,7 +113,7 @@
 	<div id="editEmployeeModal-{{ forloop.counter }}" class="modal fade">
 		<div class="modal-dialog">
 			<div class="modal-content">
-				<form action="/admin_dashboard/product_update/{{product.id}}" method="post" enctype="multipart/form-data">
+				<form action="/admin_dashboard/coupon_edit/{{product.id}}" method="post" enctype="multipart/form-data">
 					{% csrf_token %}
 					<div class="modal-header">						
 						<h4 class="modal-title">Edit Product</h4>

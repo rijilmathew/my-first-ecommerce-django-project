@@ -2,8 +2,57 @@
 <html>
 <head>
     <title>Verify OTP</title>
+    <style>
+        body {
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: black;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        p {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #timer {
+            font-weight: bold;
+        }
+    </style>
     <script>
-        function startTimer() {
+        window.onload = function() {
             var timerElement = document.getElementById("timer");
             var duration = 300; // Set the duration in seconds (5 minutes = 300 seconds)
             var timer = duration;
@@ -24,24 +73,18 @@
                     timerElement.textContent = "Time's up!";
                 }
             }, 1000);
-        }
-
-        // Start the timer when the page loads
-        window.onload = startTimer;
+        };
     </script>
 </head>
 <body>
-    <h1>Verify OTP</h1>
     <form method="post" action="{% url 'verify_otp' %}">
+        <h1>Verify OTP</h1>
         {% csrf_token %}
-        <label for="email">Email:</label>
-        <input type="email" name="email" required><br><br>
-        
-        <label for="otp">OTP:</label>
-        <input type="text" name="otp" required><br><br>
-
+        <div>
+            <label for="otp">OTP:</label>
+            <input type="text" name="otp" required><br><br>
+        </div>
         <p>Time remaining: <span id="timer"></span></p>
-        
         <input type="submit" value="Verify">
     </form>
 </body>

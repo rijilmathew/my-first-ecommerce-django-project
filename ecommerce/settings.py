@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'authentication',
     'admins',
     'carts',
+    
 ]
 
 MIDDLEWARE = [
@@ -152,3 +153,15 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'rijilmathew665@gmail.com'
 EMAIL_HOST_PASSWORD = 'cwedigppvleksceq'
 EMAIL_USE_TLS = True
+
+from django.contrib.messages import constants as messages
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'alert alert-secondary',
+    messages.INFO: 'alert alert-info',
+    messages.SUCCESS: 'alert alert-success',
+    messages.WARNING: 'alert alert-warning',
+    messages.ERROR: 'alert alert-danger',
+}

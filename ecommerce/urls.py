@@ -23,4 +23,6 @@ urlpatterns = [
     path('authentication/',include('authentication.urls')),
     path('admin_dashboard/',include('admins.urls')),
     path('cart/',include('carts.urls')),
+    
+    
 ]

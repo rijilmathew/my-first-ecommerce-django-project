@@ -6,8 +6,10 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 from carts.models import CartItem
 from carts.views import _cart_id  
+from admins.models import Filter_Price
 
-from django.http import HttpResponse
+
+
 
 
 
@@ -42,12 +44,15 @@ def index(request):
 
 def product_home(request):
     category = request.GET.get('category')
+    filter_price = request.GET.get('price')
     context = {}
 
     if category is None:
         products = Product.objects.all()
     else:
         products = Product.objects.filter(product_category__category_name=category)
+    if filter_price:
+        products = products.filter(filter_price__price=filter_price)
 
     # Pagination
     paginator = Paginator(products, 2)
@@ -56,11 +61,15 @@ def product_home(request):
 
     categories = ProductCategory.objects.all()
     brands = ProductBrand.objects.all()
+    filter_prices = Filter_Price.objects.all()
+   
     context = {
         'products': products,
         'brands': brands,
         'categories': categories,
-        'selected_category': category  # Pass the selected category to the template
+        'selected_category': category, # Pass the selected category to the template
+        'selected_price_filter': filter_price,
+        'filter_prices': filter_prices,
     }
 
    
@@ -71,27 +80,28 @@ def product_home(request):
 
 
 
-def product_by_brand(request,id):
-    products = Product.objects.filter(product_brand = id)
-    categories = ProductCategory.objects.all()
-    brands = ProductBrand.objects.all()
-    context = {
-        'products':products,
-        'categories':categories,
-        'brands':brands,
-    }
-    return render(request,'layouts/product_by_brand.html',context)
 
-def product_by_category(request, id):
-    products = Product.objects.filter(product_category=id)
-    categories = ProductCategory.objects.all()
-    brands = ProductBrand.objects.all()
-    context = {
-        'products': products,
-        'categories': categories,
-        'brands': brands,
-    }
-    return render(request, 'layouts/product_by_category.html', context)
+# def product_by_brand(request,id):
+#     products = Product.objects.filter(product_brand = id)
+#     categories = ProductCategory.objects.all()
+#     brands = ProductBrand.objects.all()
+#     context = {
+#         'products':products,
+#         'categories':categories,
+#         'brands':brands,
+#     }
+#     return render(request,'layouts/product_by_brand.html',context)
+
+# def product_by_category(request, id):
+#     products = Product.objects.filter(product_category=id)
+#     categories = ProductCategory.objects.all()
+#     brands = ProductBrand.objects.all()
+#     context = {
+#         'products': products,
+#         'categories': categories,
+#         'brands': brands,
+#     }
+#     return render(request, 'layouts/product_by_category.html', context)
 
 
 
@@ -111,22 +121,26 @@ def single_product(request, id):
 
 
    
-def checkout(request):
-    return render(request,'layouts/checkout.html')
+
 
 def search(request):
     if 'keyword' in request.GET:
-        product_count = 0
         keyword = request.GET['keyword']
-        if keyword:
-            products=Product.objects.order_by('-created_at').filter(Q(product_description__icontains=keyword) | Q(product_name__icontains=keyword))
-            product_count = products.count()
-        context = {
-            'products':products,
-            'product_count':product_count,
-        }    
-    return render(request,'layouts/collections.html',context)
+        products = Product.objects.order_by('-created_at').filter(
+            Q(product_description__icontains=keyword) | Q(product_name__icontains=keyword)
+        )
 
+        paginator = Paginator(products, 2)  # Adjust the page size as needed
+        page_number = request.GET.get('page')
+        products = paginator.get_page(page_number)
+
+        context = {
+            'products': products,
+            'product_count': paginator.count,
+            'keyword': keyword,
+        }
+    
+    return render(request, 'layouts/collections.html', context)
 
 
 

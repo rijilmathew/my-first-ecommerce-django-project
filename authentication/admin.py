@@ -5,3 +5,8 @@ from .models import *
 
 admin.site.register(CustomUser)
 admin.site.register(UserAddress)
+admin.site.register(UserProfile)
+
+
+
+

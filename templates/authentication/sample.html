@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Bootstrap Form Example</title>
+  <!-- Add Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+     body {
+      background-color: black;
+      color: white;
+    }
+    .center-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .short-input {
+      max-width: 200px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container center-container">
+    <div>
+      <h2 class="text-center mb-4">Bootstrap Register Form Example</h2>
+      <form action="" method="POST">
+      {% csrf_token %}
+       
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" class="form-control short-input" id="email" name = "email" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input type="password" class="form-control short-input" id="password" name = "password" placeholder="Enter your password" required>
+        </div>
+         <div class="form-group">
+          <label for="name">Name:</label>
+          <input type="text" class="form-control short-input" id="name" name="name"  placeholder="Enter your name" required>
+        </div>
+         <div class="form-group">
+          <label for="phone_number">Phone Number:</label>
+          <input type="text" class="form-control short-input" id="conform_password" name = "phone_number" placeholder="Enter your password" required>
+        </div>
+        <div class="form-group form-check">
+          <label class="form-check-label">
+            <input class="form-check-input" type="checkbox"> Remember me
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+       <br><br>
+
+       
+     <p>already a  User? <a href="{% url 'user_login' %}">Login</a></p>
+    </div>
+  </div>
+                  <!---modal------>
+   <div id="otp-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="otp-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="otp-modal-label">OTP Verification</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="otp-form" action="{% url 'verify_otp' %}" method="POST">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="otp">OTP:</label>
+            <input type="text" class="form-control" id="otp" name="otp" placeholder="Enter OTP" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Verify OTP</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+  <!-- Add Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+      $(document).ready(function() {
+      // Intercept the form submission
+      $('#signup-form').submit(function(event) {
+        event.preventDefault(); // Prevent the form from submitting normally
+        
+        // Make an AJAX request to the signup view
+        $.ajax({
+          url: '/signup/',
+          type: 'POST',
+          data: $(this).serialize(),
+          success: function(response) {
+            if (response.success) {
+              // Show the OTP verification modal
+              $('#otp-modal').modal('show');
+            } else {
+              // Handle any errors or display a message
+              // ...
+            }
+          },
+          error: function(xhr, status, error) {
+            // Handle the AJAX request error
+            // ...
+          }
+        });
+      });
+    });
+
+  </script>
+</body>
+
+</html>
+{% comment %} view {% endcomment %}
+def signup(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        name = request.POST.get('name')
+        phone_number = request.POST.get('phone_number')
+
+          # Password validation
+        password_pattern = r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{6,}$'
+        if not re.match(password_pattern, password):
+            messages.error(request, "Password must contain at least one uppercase letter, one digit, one special character, and be at least 6 characters long.")
+            return redirect('signup')
+        
+         # Name validation
+        if not re.match(r'^[a-zA-Z]+$', name):
+            messages.error(request, "Name must only contain letters.")
+            return redirect('signup')
+        
+        # Phone number validation
+        if not phone_number.isdigit() or len(phone_number) != 10:
+            messages.error(request, "Phone number must contain only 10 digits.")
+            return redirect('signup')
+
+      
+        # Generate OTP
+        import random
+        otp = ''.join(random.choices('0123456789', k=6))
+        
+        # Create user
+        user = CustomUser.objects.create_user(
+            email=email,
+            password=password,
+            name=name,
+            phone_number=phone_number,
+            otp=otp,
+            is_active=False
+        )
+        
+        # Send OTP email
+        send_mail(
+            'Email Verification',
+            f'Your OTP is: {otp}',
+            settings.EMAIL_HOST_USER,
+            [email],
+            fail_silently=False
+        )
+        request.session['otp_created_at'] = timezone.now().isoformat()
+        # return redirect('verify_otp')
+        return JsonResponse({'success': True})
+    
+    return render(request, 'authentication/signup.html')
+
+
+def verify_otp(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        otp = request.POST.get('otp')
+        
+        try:
+            user = CustomUser.objects.get(otp=otp)
+            otp_created_at_str = request.session.get('otp_created_at')
+
+            if otp_created_at_str is None:
+                return redirect('verify_otp')
+            otp_created_at = datetime_safe.datetime.fromisoformat(otp_created_at_str)
+            current_time = timezone.now()
+            if (current_time - otp_created_at).total_seconds() > 300:
+                error_message = 'OTP has expired. Please request a new OTP.'
+                return render(request, 'authentication/verify_otp.html', {'error_message': error_message})
+            user.is_active = True
+            user.save()
+
+            customers = CustomUser.objects.all()
+
+
+            request.session.pop('otp_created_at')
+            return redirect('user_login')
+        except CustomUser.DoesNotExist:
+            return redirect('verify_otp')
+    
+    return render(request, 'authentication/verify_otp.html')
+
+
+
+    @login_required(login_url='user_login')
+def checkout(request):
+    default_address = UserAddress.objects.filter(user=request.user, is_default=True).first()
+    addresses = UserAddress.objects.filter(user=request.user)
+    try:
+        total = 0
+        quantity = 0
+        tax = 0
+        grand_total = 0
+        cart_items = None
+        
+        if request.user.is_authenticated:
+            cart_items = CartItem.objects.filter(user=request.user, is_active=True)
+        else:
+            cart = Cart.objects.get(cart_id=_cart_id(request))
+            cart_items = CartItem.objects.filter(cart=cart, is_active=True)
+        
+        for cart_item in cart_items:
+            total += cart_item.product.product_price * cart_item.quantity
+            quantity += cart_item.quantity
+        
+        tax = (2 * total) / 100
+        grand_total = total + tax
+    
+    except ObjectDoesNotExist:
+        pass
+    
+    context = {
+        'total': total,
+        'quantity': quantity,
+        'cart_items': cart_items,
+        'tax': tax,
+        'grand_total': grand_total,
+        'default_address': default_address,
+        'addresses': addresses,
+    }
+    
+    if request.method == 'POST':
+        if default_address is None:
+            return redirect('add_address')
+        # Get the selected payment method from the form data
+        payment_method = request.POST.get('payment_method', 'cash_on_delivery')
+        # Create the Order instance
+        order = Order.objects.create(
+            user=request.user,
+            payment_method=payment_method,
+            total_amount=grand_total
+        )
+        # Create OrderItem instances for each cart item
+        for cart_item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=cart_item.product,
+                quantity=cart_item.quantity,
+                sub_total=cart_item.sub_total()
+            )
+            # Decrease the product quantity
+            product = cart_item.product
+            product.product_quantity -= cart_item.quantity
+            product.save()
+        # Clear the cart after placing the order
+        if request.user.is_authenticated:
+            CartItem.objects.filter(user=request.user, is_active=True).delete()
+        else:
+            cart = Cart.objects.get(cart_id=_cart_id(request))
+            CartItem.objects.filter(cart=cart, is_active=True).delete()
+        
+        # Redirect to the Order Summary page with the newly created Order's ID
+        messages.success(request, 'Your order has been placed successfully.')
+        # return redirect('order_summary', order_id=order.id)
+        return redirect('product_home')
+    
+    return render(request, 'layouts/checkout.html', context)
+
+
+
+    
+    def user_login(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        user =authenticate(request, email=email, password=password)
+        if user is not None and not user.is_staff:
+            try:
+                cart = Cart.objects.get(cart_id = _cart_id(request))
+                is_cart_item_exists = CartItem.objects.filter(cart=cart).exists()
+                if is_cart_item_exists:
+                    cart_item = CartItem.objects.filter(cart=cart)
+                    for item in cart_item:
+                        item.user=user
+                        item.save()
+            except Cart.DoesNotExist:
+                pass            
+                login(request, user)
+            url = request.META.get('HTTP_REFERER')
+            try:
+                query = request.utils.urlparse(url).query
+                params = dict(x.split('=')for x in query.split('&'))
+                if 'next' in params:
+                    nextPage = params['next']
+                    return redirect(nextPage)
+                    
+            except:
+                   return redirect('/') 
+            
+        else:
+            messages.error(request, "Invalid Credentials")
+            return redirect('user_login')
+    
+    return render(request, 'authentication/login.html')
+
+
+
+    @login_required(login_url='user_login')
+def checkout(request):
+    coupons = Coupon.objects.filter(active=True)
+    addresses = Order.objects.filter(user=request.user).values(
+            'fname', 'lname', 'email', 'phone', 'address', 'city', 'state', 'pincode'
+        ).distinct()
+    try:
+        total = 0
+        quantity = 0
+        tax = 0
+        grand_total = 0
+        cart_items = None
+        
+        if request.user.is_authenticated:
+            cart_items = CartItem.objects.filter(user=request.user, is_active=True)
+        else:
+            cart = Cart.objects.get(cart_id=_cart_id(request))
+            cart_items = CartItem.objects.filter(cart=cart, is_active=True)
+        
+        for cart_item in cart_items:
+            total += cart_item.product.product_price * cart_item.quantity
+            quantity += cart_item.quantity
+        
+        tax = (2 * total) / 100
+        grand_total = total 
+    except ObjectDoesNotExist:
+        pass
+    
+    
+    coupon_code = request.POST.get('coupon_code')
+    coupon = None
+    if coupon_code:
+        try:
+            coupon = Coupon.objects.get(
+                code=coupon_code,
+                active=True,
+                valid_from__lte=timezone.now(),
+                valid_to__gte=timezone.now()
+            )
+            grand_total -= coupon.discount_price
+        except Coupon.DoesNotExist:
+            # Handle the case when the coupon code is invalid or not active
+            # You can display an error message or take appropriate action here
+            pass
+
+
+    context = {
+        'total': total,
+        'quantity': quantity,
+        'cart_items': cart_items,
+        'tax': tax,
+        'grand_total': grand_total,
+        'addresses': addresses,
+        'coupons': coupons,
+       
+        
+    }
+    
+   
+    
+    return render(request, 'layouts/checkout.html', context)

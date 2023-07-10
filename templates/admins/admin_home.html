@@ -341,7 +341,7 @@
               <i class="menu-arrow"></i>
             </a>
           </li>
-          <li class="nav-item">
+          {% comment %} <li class="nav-item">
             <a class="nav-link" href="">
               <i class="icon-head menu-icon"></i>
               <span class="menu-title"> Product Varients</span>
@@ -361,11 +361,11 @@
               <span class="menu-title"> Product Sizes</span>
               <i class="menu-arrow"></i>
             </a>
-          </li>
+          </li> {% endcomment %}
 
 
           <li class="nav-item">
-            <a class="nav-link" href="">
+            <a class="nav-link" href="{% url 'order_list' %}">
               <i class="icon-bar-graph menu-icon"></i>
               <span class="menu-title"> Order List</span>
               <i class="menu-arrow"></i>
@@ -373,7 +373,7 @@
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="">
+            <a class="nav-link" href="{% url 'coupon' %}">
               <i class="icon-contract menu-icon"></i>
               <span class="menu-title"> Coupon List</span>
               <i class="menu-arrow"></i>
