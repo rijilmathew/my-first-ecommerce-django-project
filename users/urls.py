@@ -12,6 +12,9 @@ urlpatterns = [
    path('single_product/<int:id>/', views.single_product, name="single_product"),
    # path('checkout',views.checkout,name="checkout"),
    path('search',views.search,name="search"),
+   path('wallet',views.wallet,name="wallet"),
+   path('filter_products_by_price',views.filter_products_by_price,name="filter_products_by_price"),
+  
   
   
    

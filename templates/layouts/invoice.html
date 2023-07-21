@@ -6,15 +6,16 @@
 </div>
 
 <div class="container">
-  
+  <div id="topdf">
     <div class="row" >
       <div class="col-md-12" >
-        <h2>Order Summary <a href="{% url 'product_home' %}" class="btn btn-success mt-4 float-end"><b>Continue Shopping</b></a></h2>
+        <h2>INVOICE</h2>
+        <p>Invoice  Number: {{ order.id }}</p>
         <p>Order Number: {{ order.id }}</p>
         <p style="font-size: 1.2rem; font-weight: 600;">Shipping Address:</p>
-        <p style="font-size: 1.2rem; font-weight: 600;">{{ order.fname }} {{ order.lname }}</p>
-        <p style="font-size: 1rem;">{{ order.email }}</p>
-        <p style="font-size: 1rem;">{{ order.phone }}</p>
+        <p style="font-size: 1.2rem; font-weight: 400;">Name:{{ order.fname }} {{ order.lname }}</p>
+        <p style="font-size: 1rem;">Email:{{ order.email }}</p>
+        <p style="font-size: 1rem;">Phone:{{ order.phone }}</p>
         <p style="font-size: 1rem;">{{ order.city }}, {{ order.state }}</p>
         <p style="font-size: 1rem;">{{ order.address }}, {{ order.pincode }}</p>
      
@@ -43,17 +44,25 @@
           </table>
         </div>
         <p style="font-size: 1.2rem; font-weight: 600;">Total Amount: {{ order.total_mrp }}</p>
-        {% if order.coupon.discount_price %}
-          <h4>Discount Price:{{order.coupon.coupon_name}} coupon: <span>{{ order.coupon.discount_price }}</span></h4>
-        {% endif %}
         <p style="font-size: 1.2rem; font-weight: 600;">Total Payment Amount: {{ order.payment_amount }}</p>
         
         <!-- Display any other relevant order information -->
       </div>
       
     </div>
-    
-    
+    </div>
+    <div class="d-flex justify-content-between mb-3">
+          <a href="{% url 'product_home' %}" class="btn btn-success mt-4"><b>Back to Home</b></a>
+          <button onclick="downloadPDF()" class="btn btn-info mt-4">
+              <b>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer-fill" viewBox="0 0 16 16">
+                      <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2H5zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z" />
+                      <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2V7zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z" />
+                  </svg>
+                  Print Invoice
+              </b>
+          </button>
+  </div>
 </div>
 
 <style>

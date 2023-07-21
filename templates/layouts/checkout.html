@@ -72,6 +72,9 @@ function fillAddressFields() {
                                 <label>Pin code</label>
                                 <input type="text" class="form-control" id="address_pincode" name="pincode" placeholder="Enter Pincode" required>
                             </div>
+                            <input type="hidden" value="{{ payment_method }}" name="payment_mode">
+                            <input type="hidden" value="{{ payment_status }}" name="payment_status">
+                            <input type="hidden" name="payment_id" value="{{ payment_id }}"> 
 
                         </div>
                         
@@ -130,7 +133,9 @@ function fillAddressFields() {
                             <input type="hidden" value="COD" name="payment_mode">
                             <div class="mt-3" >
                                 <button type="submit" class="btn btn-success w-100">COD|Place Order</button>
-                                <button type="button" class="btn btn-primary w-100 mt-2">Pay With Razorpay</button>
+                                <div id="paypal-button-container" class = "mt-2"></div>
+                              
+                                 
                             </div>
                         </div>
                     </div>
@@ -189,4 +194,102 @@ function fillAddressFields() {
     </div>
 </div>
 
+
 {% endblock %} 
+
+{% block scripts %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=AW7nOGHIIO7vRm5qC_4yJP9Ho9-6uSUFrxsvsgW_N3oBx8Hw98Tb3RWyaIKd_ipLA5ePgY1E-g1iRqgz&currency=USD"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    
+
+    <script>
+        // Assign jQuery to a different variable to avoid conflicts
+        var jq = jQuery.noConflict();
+
+        jq(document).ready(function() {
+            jq('.element').fadeIn();
+            jq('.element').fadeOut();
+        });
+
+        jq(function() {
+            paypal.Buttons({
+            style: {
+                layout: 'vertical',
+                color: 'gold',
+                shape: 'rect',
+            },
+            onClick: function(data, actions) {
+                var fname = jq("[name='fname']").val();
+                var lname = jq("[name='lname']").val();
+                var email = jq("[name='email']").val();
+                var phone = jq("[name='phone']").val();
+                var address = jq("[name='address']").val();
+                var city = jq("[name='city']").val();
+                var state = jq("[name='state']").val();
+                var pincode = jq("[name='pincode']").val();
+                var token = jq("[name='csrfmiddlewaretoken']").val();
+
+                if (fname === "" || lname === "" || email === "" || phone === "" || address === "" || city === "" || state === "" || pincode === "") {
+                swal("Alert", "All fields are mandatory!", "error");
+                return false;
+                } else {
+                return true;
+                }
+            },
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                    value: '{{ grand_total | stringformat:'d' }}'
+                    }
+                }]
+                });
+            },
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(orderData) {
+                
+                var fname = jq("[name='fname']").val();
+                var lname = jq("[name='lname']").val();
+                var email = jq("[name='email']").val();
+                var phone = jq("[name='phone']").val();
+                var address = jq("[name='address']").val();
+                var city = jq("[name='city']").val();
+                var state = jq("[name='state']").val();
+                var pincode = jq("[name='pincode']").val();
+                var token = jq("[name='csrfmiddlewaretoken']").val();
+                var paymentMethod = jq("[name='payment_method']").val();
+                var data = {
+                    "fname": fname,
+                    "lname": lname,
+                    "email": email,
+                    "phone": phone,
+                    "address": address,
+                    "city": city,
+                    "state": state,
+                    "pincode": pincode,
+                    "payment_method": paymentMethod,
+                    "payment_id": orderData.id,
+                    "csrfmiddlewaretoken": token
+                };
+                jq.ajax({
+                    method: "POST",
+                    url: "{% url 'placeorder' %}",
+                    data: data,
+                    success: function(response) {
+                        swal("Congratulations!", response.status, "success").then((value) => {
+                            window.location.href =response.redirect_url;
+                    });
+                    }
+                });
+                
+                });
+            },
+            
+            }).render('#paypal-button-container');
+        });
+    </script>
+
+{% endblock scripts %} 
+

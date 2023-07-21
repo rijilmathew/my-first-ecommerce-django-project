@@ -14,10 +14,12 @@ from carts.models import Order,OrderItem
 from django.contrib import messages
 import random
 import string
-from .models import Wishlist
+from .models import Wishlist,Wallet
 from admins.models import Coupon
 from django.utils import timezone
 from django.http import JsonResponse
+from django.shortcuts import redirect
+from django.http import HttpResponseRedirect
 
 
 
@@ -57,6 +59,9 @@ def add_cart(request, product_id):
                     cart=cart,
                     user=current_user,
                 )
+        #remove from wish list
+        wishlist = Wishlist.objects.get(user=current_user)
+        wishlist.products.remove(product)        
 
         return redirect('cart')
     
@@ -146,6 +151,7 @@ def cart(request, total=0, quantity=0, cart_items=None):
 
 from django.shortcuts import get_object_or_404
 
+@login_required(login_url='user_login')
 def checkout(request):
     # Retrieve active coupons
     coupons = Coupon.objects.filter(active=True)
@@ -202,7 +208,7 @@ def checkout(request):
 
     return render(request, 'layouts/checkout.html', context)
 
-from django.shortcuts import redirect
+
 
 def placeorder(request):
     if request.method == 'POST':
@@ -216,8 +222,10 @@ def placeorder(request):
         neworder.city = request.POST.get('city')
         neworder.state = request.POST.get('state')
         neworder.pincode = request.POST.get('pincode')
-        neworder.payment_method = request.POST.get('payment_mode')
-        
+        payment_method = request.POST.get('payment_mode')
+        payment_status = request.POST.get('payment_status')
+        neworder.payment_id = request.POST.get('payment_id')
+        print(payment_method)
         # Calculate total, quantity, tax, and grand_total
         total = 0
         quantity = 0
@@ -243,11 +251,22 @@ def placeorder(request):
                 discount_amount = applied_coupon.discount_price 
                 neworder.discount_amount = discount_amount
                 grand_total -= discount_amount
+        else:
+             neworder.discount_amount = 0 
+
+
+             
+        if payment_method == 'COD':
+            neworder.payment_method = 'COD'
+            neworder.payment_status ='pending'
+        else:
+            neworder.payment_method = 'Paypal'
+            neworder.payment_status ='Completed'
+             
         
         neworder.payment_amount = grand_total
         
         neworder.save()
-        
         # Create OrderItem instances for each cart item
         for cart_item in cart_items:
             OrderItem.objects.create(
@@ -264,9 +283,16 @@ def placeorder(request):
         # Clear the cart and applied coupon after placing the order
         CartItem.objects.filter(user=request.user, is_active=True).delete()
         request.session.pop('applied_coupon', None)
-        
-        # Redirect to the Order Summary page with the newly created Order's ID
-        return redirect('order_summary', order_id=neworder.id)
+        print(neworder.id)
+        # Redirect to the Order Summary page with the newly created Order
+        if payment_method == 'COD':
+            return redirect('order_summary', order_id=neworder.id)
+        else:
+
+             return JsonResponse({'status': 'Order placed successfully', 'order_id': neworder.id, 'redirect_url': 'order_summary/' + str(neworder.id) + '/'})
+
+
+    
 
     return redirect('/')
 
@@ -280,60 +306,6 @@ def placeorder(request):
 
 
 
-# def placeorder(request):
-#     if request.method == 'POST':
-#         neworder = Order()
-#         neworder.user = request.user
-#         neworder.fname = request.POST.get('fname')
-#         neworder.lname = request.POST.get('lname')
-#         neworder.email = request.POST.get('email')
-#         neworder.phone = request.POST.get('phone')
-#         neworder.address = request.POST.get('address')
-#         neworder.city = request.POST.get('city')
-#         neworder.state = request.POST.get('state')
-#         neworder.pincode = request.POST.get('pincode')
-#         neworder.payment_method = request.POST.get('payment_mode')
-        
-
-#         # Calculate total, quantity, tax, and grand_total
-#         total = 0
-#         quantity = 0
-#         tax = 0
-#         grand_total = 0
-#         cart_items = None
-        
-#         cart_items = CartItem.objects.filter(user=request.user, is_active=True)
-#         for cart_item in cart_items:
-#             total += cart_item.product.product_price * cart_item.quantity
-#             quantity += cart_item.quantity
-        
-#         tax = (2 * total) / 100
-#         grand_total = total + tax
-       
-
-#         neworder.total_mrp = grand_total
-        
-#         neworder.save()
-#         # Create OrderItem instances for each cart item
-#         for cart_item in cart_items:
-#             OrderItem.objects.create(
-#                 order_no=neworder,
-#                 product=cart_item.product,
-#                 quantity=cart_item.quantity,
-                
-#             )
-#             # Decrease the product quantity
-#             product = cart_item.product
-#             product.product_quantity -= cart_item.quantity
-#             product.save()
-#         # Clear the cart after placing the order
-#         CartItem.objects.filter(user=request.user, is_active=True).delete()
-        
-#     # Redirect to the Order Summary page with the newly created Order's ID
-#     # messages.success(request, 'Your order has been placed successfully.')
-#     # return redirect('order_summary', order_id=order.id)
-#     return redirect('/')
-
 
        
         
@@ -341,6 +313,22 @@ def placeorder(request):
 
 @login_required(login_url='user_login')
 def order_summary(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    default_address = UserAddress.objects.filter(user=request.user, is_default=True).first()
+    shipping_address = order.shipping_address
+    order_items = OrderItem.objects.filter(order_no=order)
+    
+
+    context = {
+        'order': order,
+        'order_items': order_items,
+        'default_address': default_address,
+        'shipping_address': shipping_address
+    }
+
+    return render(request, 'layouts/order_summary.html', context)
+@login_required(login_url='user_login')
+def order_invoice(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     default_address = UserAddress.objects.filter(user=request.user, is_default=True).first()
     shipping_address = order.shipping_address
@@ -353,7 +341,7 @@ def order_summary(request, order_id):
         'shipping_address': shipping_address
     }
 
-    return render(request, 'layouts/order_summary.html', context)
+    return render(request, 'layouts/invoice.html', context)
 def order_edit(request):
     orders = Order.objects.all()
     context = {'orders':orders}
@@ -375,6 +363,47 @@ def order_history(request):
         'orders': orders
     }
     return render(request, 'layouts/order_history.html', context)
+
+
+
+@login_required
+def cancel_order(request, order_id, product_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    if order.order_status == 'Pending':
+        order_items = order.orderitem_set.filter(status='Pending')
+
+        # Find the specific order item to cancel based on the product ID
+        order_item = order_items.get(product_id=product_id)
+
+      
+
+        # Increase the product quantity
+        order_item.product.product_quantity += order_item.quantity
+        order_item.product.save()
+
+        # Update the order item status to 'Cancelled'
+        order_item.status = 'Cancelled'
+        order_item.save()
+        # Reduce the total_mrp and payment_amount by the cancelled item's subtotal
+        # order.total_mrp -= order_item.get_subtotal()
+        # order.payment_amount -= order_item.get_subtotal()
+        # Check if all order items in the order are cancelled
+        all_items_cancelled = order.orderitem_set.filter(status='Pending').count() == 0
+        if all_items_cancelled:
+            # Update the order status to 'Cancelled' if all items are cancelled
+            order.order_status = 'Cancelled'
+            order.save()
+          # Add the payment amount back to the wallet
+        if order.payment_status == 'Completed':
+            try:
+                wallet = Wallet.objects.get(user=request.user)
+            except Wallet.DoesNotExist:
+                wallet = Wallet.objects.create(user=request.user, amount=0)
+            wallet.amount += order_item.get_subtotal()
+            wallet.save()
+    # Redirect to the order details page or appropriate URL
+    return redirect('vieworder', od_no=str(order.order_no))
 
 
 def vieworder(request, od_no):
@@ -422,8 +451,20 @@ def wishlist_view(request):
         wishlist = Wishlist.objects.get(user=request.user)
     except Wishlist.DoesNotExist:   
         wishlist = None
-
+    print(wishlist)
     context = {
         'wishlist': wishlist,
     }
     return render(request, 'layouts/wishlist.html', context)
+
+
+def wishlist_remove(request, product_id):
+    wishlist = get_object_or_404(Wishlist, user=request.user)
+    product = get_object_or_404(Product, id=product_id)
+
+    # Remove the product from the wishlist
+    wishlist.products.remove(product)
+
+    return redirect('wishlist')
+
+

@@ -40,6 +40,7 @@
                                             <th>Quantity</th>
                                             <th>Price</th>
                                             <th>Image</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -51,6 +52,17 @@
                                                 <td>
                                                     <img src="{{ item.product.product_thumbnail.url }}" height="50px" width="50px" alt="Product Image">
                                                 </td>
+                                                <td>
+                                                    {% if item.status == 'Pending' %}
+                                                        <form method="POST" action="{% url 'cancel_order' item.order_no.id item.product.id  %}">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-danger">Cancel</button>
+                                                        </form>
+                                                    {% else %}
+                                                        <span style="color: red;">{{ item.status }}</span>
+                                                    {% endif %}
+                                                </td>
+
                                             </tr>
                                         {% endfor %}
                                     </tbody>
@@ -59,7 +71,7 @@
                                 {% comment %} <h4>Grand Total:<span class="float-end">{{ order.payment_amount }}</span></h4> {% endcomment %}
                                 <h4>Grand Total: <span class="float-end">{{order.total_mrp}}</span></h4>
                                 {% if order.coupon.discount_price %}
-                                <h4>Discount Price:{{order.coupon.coupon_name}} coupon <span class="float-end">{{ order.coupon.discount_price }}</span></h4>
+                                <h4>Discount Price:{{order.coupon.coupon_name}} coupon <span class="float-end">{{ order.coupon.discount_amount }}</span></h4>
                                 {% endif %}
                                 <h2>Payment Amount: <span class="float-end">{{ order.payment_amount }}</span></h2>
 

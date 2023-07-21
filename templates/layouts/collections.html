@@ -4,7 +4,54 @@
 {% block body %}  
 
 <div class="inner_page-banner one-img" style="text-align: center; background: url('{% static 'lap/images/blackbanner.jpg' %}') no-repeat center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; -ms-background-size: cover; min-height: 350px;"></div>
- 
+ <style>
+ /* Style the labels */
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Style the input elements */
+input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: none;
+}
+
+/* Style the submit button */
+input[type="submit"] {
+    display: block;
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Hover effect for the submit button */
+input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Optional: If you want to style the form container */
+{% comment %} div {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+} {% endcomment %}
+
+ </style>
 
 <section class="contact py-lg-4 py-md-3 py-sm-3 py-3">
    <div class="container-fluid py-lg-5 py-md-4 py-sm-4 py-3">
@@ -28,19 +75,25 @@
                </ul>
             </div>
             <div class="left-side">
-               <h3 class="agileits-sear-head">Price Filter</h3>
-               <div class="price-filter">
-                  <select onchange="location = this.value;">
-                     <option value="{% url 'product_home' %}" {% if not selected_price_filter %}selected{% endif %}>All</option>
-                     {% for f_price in filter_prices %}
-                        <option value="{% url 'product_home' %}?price={{ f_price.price }}"
-                           {% if f_price.price == selected_price_filter %}selected{% endif %}>
-                           {{ f_price.price }}
-                        </option>
-                     {% endfor %}
-                  </select>
+              <div data-role="header">
+                     <h1>Range Slider</h1>
+                  </div>
+
+                <div>
+                  <form method="post" action="{% url 'filter_products_by_price'%}">
+                     {% csrf_token %}
+                     <label for="price-min">Minimum Price:</label>
+                     <input type="number" name="price-min" id="price-min" value="1000" min="0" max="1000000">
+
+                     <label for="price-max">Maximum Price:</label>
+                     <input type="number" name="price-max" id="price-max" value="1000000" min="0" max="1000000">
+
+                     <input type="submit" data-inline="true" value="Submit">
+                  </form>
                </div>
-            </div>
+
+               </div> 
+         
          </div>
          <div class="left-ads-display col-lg-9">
             <div class="row">
@@ -137,5 +190,8 @@
       </div>
    </div>
 </div>
+
+
+
 {% endblock %}
 

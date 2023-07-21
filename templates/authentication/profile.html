@@ -3,22 +3,201 @@
 
 {% block body %} 
 <div class="inner_page-banner one-img" style="text-align: center; background: url('{% static 'lap/images/smallbanner.jpeg' %}') no-repeat center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; -ms-background-size: cover; min-height: 350px;"></div> 
+<section style="background-color: white;">
+   <div class="col mt-2">
+      <!-- Display messages -->
+      {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+  <div class="container py-5">
+    <div class="row">
+        
+      <div class="col-lg-4">
+        <div class="card mb-4">
+          <div class="card-body text-center" style='background-color:#eee'>
+            <img src="https://cdn.iconscout.com/icon/free/png-256/free-laptop-user-1-1179329.png?f=webp&w=256" alt="avatar"
+              class="rounded-circle img-fluid" style="width: 150px;">
+            <h5 class="my-3">{{ user.name }}</h5>
+           
+            <div class="d-flex justify-content-center mb-2">
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#changePasswordModal">Change Password</button>
+              
+              <button type="button" class="btn btn-outline-primary ms-1" data-toggle="modal" data-target="#editProfileModal">User</button>
+            
 
-<div class="d-flex align-items-center justify-content-center vh-100">
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-6">
-        <h1 class="text-center">Profile</h1>
-        <div class="text-center">
-          <p>Name: {{ user.name }}</p>
-          <p>Email: {{ user.email }}</p>
-          <p>Phone Number: {{ user.phone_number }}</p>
-          <div class="btn-group" role="group">
-            <a href="{% url 'edit_profile' %}" class="btn btn-primary mr-2">Edit Profile</a>
-            <a href="{% url 'change_password' %}" class="btn btn-primary">Change Password</a>
+            </div>
           </div>
-          <a href="{% url 'show_addresses' %}" class="btn btn-primary">View Address</a>
         </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="card mb-4">
+          <div class="card-body" style='background-color:#eee'>
+            <div class="row">
+              <div class="col-sm-3">
+                <p class="mb-0">Full Name</p>
+              </div>
+              <div class="col-sm-9">
+                <p class="text-muted mb-0">{{ user.name }}</p>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-sm-3">
+                <p class="mb-0">Email</p>
+              </div>
+              <div class="col-sm-9">
+                <p class="text-muted mb-0">{{ user.email }}</p>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-sm-3">
+                <p class="mb-0">Phone</p>
+              </div>
+              <div class="col-sm-9">
+                <p class="text-muted mb-0">{{ user.phone_number }}</p>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-sm-3">
+                <p class="mb-0">Mobile</p>
+              </div>
+              <div class="col-sm-9">
+                <p class="text-muted mb-0">{{ user.phone_number }}</p>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-sm-3">
+                <p class="mb-0">Address</p>
+              </div>
+              <div class="col-sm-9">
+                <p class="text-muted mb-0">Bay Area, San Francisco, CA</p>
+              </div>
+            </div> 
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<div style="padding-left:12rem; padding-right:12rem; padding-bottom:6rem"> 
+      <h1>Address</h1>
+      <table class="table align-middle mb-0 bg-white">
+        <thead class="bg-light">
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th>City</th>
+            <th>State</th>
+            <th>Pincode</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for item in addresses %}
+          <tr>
+            <td>
+              <p class="fw-normal mb-1">{{item.fname}} {{item.lname}}</p>
+            </td>
+           
+            <td>
+              <p class="fw-normal mb-1">{{item.email}}</p>
+            </td>
+           <td>
+              <p class="fw-normal mb-1">{{item.phone}}</p>
+            </td>
+            <td>
+              <p class="fw-normal mb-1">{{item.address}}</p>
+            </td>
+            <td>
+              <p class="fw-normal mb-1">{{item.city}}</p>
+            </td>
+             <td>
+              <p class="fw-normal mb-1">{{item.state}}</p>
+            </td>
+             <td>
+              <p class="fw-normal mb-1">{{item.pincode}}</p>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+</div>    
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{% url 'change_password' %}">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="current_password">Current Password:</label>
+            <input type="password" class="form-control" id="current_password" name="current_password" required>
+          </div>
+          <div class="form-group">
+            <label for="new_password">New Password:</label>
+            <input type="password" class="form-control" id="new_password" name="new_password" required>
+          </div>
+          <div class="form-group">
+            <label for="confirm_new_password">Confirm New Password:</label>
+            <input type="password" class="form-control" id="confirm_new_password" name="confirm_new_password" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+      {% if messages %}
+        <div class="modal-footer">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" aria-labelledby="editProfileModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{% url 'update_profile' %}">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ user.name }}" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+          </div>
+          <div class="form-group">
+            <label for="phone_number">Phone Number:</label>
+            <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ user.phone_number }}" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Update</button>
+        </form>
       </div>
     </div>
   </div>

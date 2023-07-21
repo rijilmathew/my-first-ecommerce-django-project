@@ -51,21 +51,9 @@
         <p><span class="item_price">${{product.product_price}}</span>
           <del>$1,199</del>
         </p>
-        <div class="rating1">
-          <ul class="stars">
-            <li><a href="#"><i class="fa fa-star" aria-hidden="true"></i></a></li>
-            <li><a href="#"><i class="fa fa-star" aria-hidden="true"></i></a></li>
-            <li><a href="#"><i class="fa fa-star" aria-hidden="true"></i></a></li>
-            <li><a href="#"><i class="fa fa-star-half-o" aria-hidden="true"></i></a></li>
-            <li><a href="#"><i class="fa fa-star-o" aria-hidden="true"></i></a></li>
-          </ul>
-        </div>
+       
         <div class="description">
-          <h5>Check delivery, payment options, and charges at your location</h5>
-          <form action="#" method="post">
-            <input class="form-control" type="text" name="Email" placeholder="Please enter..." required="">
-            <input type="submit" value="Check">
-          </form>
+           <h5>{{product.product_description}}</h5>
         </div>
      
         <div class="occasion-cart">
@@ -98,6 +86,13 @@
                       </form>
                     </div>
                   {% endif %}
+                    <div class="mt-2">
+                        <form action="{% url 'add_to_wishlist' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                            <button type="submit" class="wishlist-button">&#x2665;</button>
+                        </form>
+                    </div>
             {% endif %}
         </div>
       </div>

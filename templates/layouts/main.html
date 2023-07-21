@@ -17,23 +17,29 @@
          	window.scrollTo(0, 1);
          }
       </script>
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script> 
+       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css"> 
       <!--//meta tags ends here-->
       <!--booststrap-->
-       <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-       <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+       {% comment %} <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> {% endcomment %}
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
-      <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" media="all">
+      {% comment %} <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" media="all"> {% endcomment %}
       <!--//booststrap end-->
       <!-- font-awesome icons -->
+      
       <!-- FontAwesome CSS -->
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-      <link href="{% static 'css/fontawesome-all.min.css' %}" rel="stylesheet" type="text/css" media="all">
+      {% comment %} <link href="{% static 'css/fontawesome-all.min.css' %}" rel="stylesheet" type="text/css" media="all"> {% endcomment %}
       <!-- //font-awesome icons -->
       <!-- For Clients slider -->
       <link rel="stylesheet" href="{% static 'css/flexslider.css' %}" type="text/css" media="all" />
+      <link rel="stylesheet" href="{% static 'css/mycss.css' %}" type="text/css" media="all" />
       <!--flexs slider-->
-      <link href="{% static 'css/JiSlider.css' %}" rel="stylesheet">
+      {% comment %} <link href="{% static 'css/JiSlider.css' %}" rel="stylesheet"> {% endcomment %}
    
       <!--Shoping cart-->
       <link rel="stylesheet" href="{% static 'css/shop.css' %}" type="text/css" />
@@ -42,16 +48,19 @@
       <!--//Shoping cart-->
       <!--price range-->
       <link rel="stylesheet" type="text/css" href="{% static 'css/jquery-ui1.css' %}">
-      <!--//price range-->
+     
+     
       <!--stylesheets-->
       <link href="{% static 'css/style.css' %}" rel='stylesheet' type='text/css' media="all">
       <link href="{% static 'css/mycss.css' %}" rel='stylesheet' type='text/css' media="all">
       <!--//stylesheets-->
       <link href="//fonts.googleapis.com/css?family=Sunflower:500,700" rel="stylesheet">
       <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700" rel="stylesheet">
-       {% include "inc/navbar.html" %} 
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.js"></script>
+      
+      
    </head>
-     
+      {% include "inc/navbar.html" %} 
    <body>
          {% block body %}  
 
@@ -69,10 +78,11 @@
       
       <!--js working-->
       <script src="{% static 'js/jquery-2.2.3.min.js' %}"></script>
-      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+      {% comment %} <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> {% endcomment %}
+      {% comment %} <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> {% endcomment %}
       <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-      <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+      {% comment %} <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script> {% endcomment %}
+      
       <!--//js working-->
       <!-- cart-js -->
       <script src="{% static 'js/minicart.js' %}"></script>
@@ -195,15 +205,31 @@
             });
          });
       </script> 
+    
 
 
 
+         <!--bootstrap working-->  
 
+     
+ <script>
 
+   function downloadPDF() {
+      const element = document.getElementById('topdf');
 
-         <!--bootstrap working-->       
+      // configure the html2pdf options
+      const options = {
+            filename: 'Invoice.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, scrollX: 0, scrollY: 0 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
 
-      
+      // convert the element to PDF
+      html2pdf().from(element).set(options).save();
+   }
+</script>
+
    
     
    

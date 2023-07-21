@@ -1,5 +1,130 @@
 {% load static %}
 
+
+<!-- Add a modal for user options -->
+<div class="modal fade" id="userOptionsModal" tabindex="-1" role="dialog" aria-labelledby="userOptionsModalLabel" aria-hidden="true">
+   <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h5 class="modal-title" id="userOptionsModalLabel">User Options</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+         </div>
+         <div class="modal-body">
+            <ul>
+               <li><a href="{% url 'profile' %}" style="color: blue;">Profile</a></li>
+               <li><a href="{% url 'order_history' %}" style="color: blue;">Orders</a></li>
+               <li><a href="{% url 'logout' %}" style="color: blue;">Logout</a></li>
+               <li><a href="{% url 'wallet' %}" style="color: blue;">Wallet</a></li>
+            </ul>
+         </div>
+      </div>
+   </div>
+</div>
+
+<div class="header-bar">
+   <div class="container-fluid">
+      <div class="hedder-up row">
+         <div class="col-lg-3 col-md-3 logo-head">
+            <h1><a class="navbar-brand" href="{% url 'index' %}">LapHub</a></h1>
+         </div>
+         <div class="col-lg-5 col-md-6 search-right">
+            <form class="form-inline my-lg-0" action="{% url 'search' %}" method="get">
+               <input class="form-control mr-sm-2" name="keyword" type="search" placeholder="Search" style="color: black;">
+               <button class="btn" type="submit">Search</button>
+            </form>
+         </div>
+         <div class="col-lg-4 col-md-3 right-side-cart">
+            <div class="cart-icons">
+               <ul>
+                 {% if request.user.is_authenticated %}
+                     <li>
+                        <a href="{% url 'wishlist' %}">
+                              <span class="far fa-heart"></span>
+                              <span class="cart-count">{{ wishlist_count }}</span> <!-- Display the wishlist count here -->
+                        </a>
+                     </li>
+                  {% endif %}
+                  <li class="toyscart toyscart2 cart cart box_1">
+                     <form action="{% url 'cart' %}" method="post" class="last">
+                        {% csrf_token %}
+                        <button class="top_toys_cart" type="submit" name="submit" value="">
+                           <span class="fas fa-cart-arrow-down"></span>
+                           <span class="cart-count">{{ cart_count }}</span>
+                        </button>
+                     </form>
+                  </li>
+                  <li>
+                     <!-- Trigger the user options modal -->
+                     <a href="#" data-toggle="modal" data-target="#userOptionsModal">
+                        <span class="fas fa-user"></span>
+                     </a>
+                  </li>
+               </ul>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+         <a class="navbar-brand" href="{% url 'index' %}">LapHub</a>
+         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+         </button>
+         <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+               <li class="nav-item">
+                  <a class="nav-link" href="/">Home</a>
+               </li>
+               <li class="nav-item">
+                  <a class="nav-link" href="{% url 'product_home' %}">Shop Now</a>
+               </li>
+               <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown1" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                     Category
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="navbarDropdown1">
+                     {% for category in categories %}
+                        <li><a class="dropdown-item" href="{% url 'product_home' %}?category={{ category.category_name }}">{{ category.category_name }}</a></li>
+                     {% endfor %}
+                  </ul>
+               </li>
+            </ul>
+            <ul class="navbar-nav">
+               {% if user.is_authenticated %}
+               <li class="nav-item">
+                  <a class="nav-link" href="#">Welcome, {{ user.name }}</a>
+               </li>
+               <li class="nav-item">
+                  <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+               </li>
+               {% else %}
+               <li class="nav-item">
+                  <a class="nav-link" href="{% url 'user_login' %}">Login</a>
+               </li>
+               <li class="nav-item">
+                  <a class="nav-link" href="{% url 'signup' %}">Register</a>
+               </li>
+               {% endif %}
+            </ul>
+         </div>
+      </div>
+   </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+{% comment %} {% load static %}
+
 <!-- Add a modal for user options -->
 <div class="modal fade" id="userOptionsModal" tabindex="-1" role="dialog" aria-labelledby="userOptionsModalLabel" aria-hidden="true">
    <div class="modal-dialog" role="document">
@@ -15,6 +140,7 @@
                <li><a href="{% url 'profile' %}">Profile</a></li>
                <li><a href="{% url 'order_history' %}">Orders</a></li>
                <li><a href="{% url 'logout' %}">Logout</a></li>
+               <li><a href="{% url 'wallet' %}">Wallet</a></li>
             </ul>
          </div>
       </div>
@@ -104,4 +230,4 @@
          </ul>
       </div>
    </nav>
-</div>
+</div> {% endcomment %}

@@ -4,9 +4,11 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.core.paginator import Paginator
-from carts.models import CartItem
+from carts.models import CartItem,Wallet
 from carts.views import _cart_id  
 from admins.models import Filter_Price
+from decimal import Decimal
+
 
 
 
@@ -143,9 +145,46 @@ def search(request):
     return render(request, 'layouts/collections.html', context)
 
 
+@login_required
+def wallet(request):
+    try:
+        wallet = Wallet.objects.get(user=request.user)
+    except Wallet.DoesNotExist:
+        wallet = Wallet.objects.create(user=request.user, amount=0)
+    
+    return render(request, 'layouts/wallet.html', {'wallet': wallet})
+    
 
 
 
+from django.core.paginator import Paginator
 
+def filter_products_by_price(request):
+    # Initialize the context dictionary
+    context = {}
+
+    if request.method == 'POST':
+        price_min = Decimal(request.POST.get('price-min', 1000))
+        price_max = Decimal(request.POST.get('price-max', 1000000))
+
+        # Query the products within the specified price range
+        products = Product.objects.filter(product_price__gte=price_min, product_price__lte=price_max)
+
+    else:
+        # If no form is submitted, display all products
+        products = Product.objects.all()
+
+    # Pagination
+    paginator = Paginator(products, 2)  # Set the number of products per page (e.g., 2 products per page)
+    page_number = request.GET.get('page')
+    products = paginator.get_page(page_number)
+
+    # Add the products and other relevant data to the context dictionary
+    context['products'] = products
+
+    # Add any other data you want to pass to the template
+    # ...
+
+    return render(request, 'layouts/collections.html', context)
 
 

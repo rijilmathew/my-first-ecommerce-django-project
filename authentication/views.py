@@ -1,3 +1,4 @@
+
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login,logout
@@ -10,16 +11,22 @@ import re
 from carts.views import _cart_id 
 from carts.models import Cart,CartItem,Order
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.forms import PasswordResetForm
 from .forms import UserProfileForm
 from django.contrib.auth import update_session_auth_hash
 from django.urls import reverse
 from django.http import HttpResponseRedirect
-from .forms import UserAddressForm
 from .models import UserAddress
 from django.shortcuts import get_object_or_404
 from .models import UserProfile
 import requests
+from decouple import config
+import random
+from twilio.rest import Client
+from django_otp.oath import totp
+import string
+
+
 
 
 
@@ -147,7 +154,91 @@ def user_login(request):
     
     return render(request, 'authentication/login.html')
 
+#mobile Otp
+class OtpGenerate():
+    Otp=None
+    phone=None
 
+    def send_otp(phone):
+        account_sid=config('account_sid')
+        auth_token=config('auth_token')
+        target_number = '+919447595446' 
+        twilio_number=config('twilio_number')
+        otp=random.randint(1000,9999)
+        OtpGenerate.Otp=str(otp)
+        OtpGenerate.phone=phone
+        msg="your otp is " + str(otp)
+        client=Client(account_sid,auth_token)
+        message=client.messages.create(
+            body=msg,
+            from_=twilio_number,
+            to=target_number
+        )
+        print(message.body)
+        return True
+
+
+def otp_login(request):
+    
+    return render(request, 'authentication/otplogin.html')
+
+def login_otp(request):
+    if request.user.is_authenticated:
+        return redirect('/')
+    
+    if request.method == 'GET' and request.GET.get('phone_number'):
+        phone_number = request.GET.get('phone_number')
+        
+        try:
+            if CustomUser.objects.filter(phone_number=phone_number).exists():
+                OtpGenerate.send_otp(phone_number)
+                return redirect('otp')
+          
+        except:
+            messages.error(request, 'Phone Number is not registered')
+            return redirect('otp_login')
+    else:
+        messages.error(request, 'Please provide your phone number')
+        return redirect('otp_login')
+
+
+
+def otp(request):
+    if request.user.is_authenticated:
+        return redirect('/')
+    return render(request,'authentication/otp.html')
+
+
+def verify_mobileotp(request):
+    obj = OtpGenerate()
+    if request.method == 'POST':
+        re_otp = request.POST.get('otp')
+        ge_otp = obj.Otp
+        if re_otp == ge_otp:
+            user = CustomUser.objects.get(phone_number=obj.phone)
+            if user.is_active == True:
+                try:
+                    cart = Cart.objects.get(cart_id=_cart_id(request))
+                    is_cart_item_exists = CartItem.objects.filter(cart=cart).exists()
+                    if is_cart_item_exists:
+                        cart_item = CartItem.objects.filter(cart=cart)
+                        for item in cart_item:
+                            item.user = user
+                            item.save()
+                except Cart.DoesNotExist:
+                    pass
+                login(request, user)
+                return redirect('/')  # Redirect to the desired page after successful verification
+            else:
+                messages.error(request, "Invalid Credentials")
+                return redirect('otp')
+        else:
+            messages.error(request, "Invalid OTP")
+            return redirect('otp')
+    else:
+        messages.error(request, "Invalid Request")
+        return redirect('otp')
+#mobile otp end 
 
 def user_logout(request):
     logout(request)
@@ -157,106 +248,150 @@ def user_logout(request):
 @login_required(login_url='user_login')
 def profile(request):
     user = request.user
-    return render(request, 'authentication/profile.html', {'user': user})
+    addresses = Order.objects.filter(user=request.user).values(
+            'fname', 'lname', 'email', 'phone', 'address', 'city', 'state', 'pincode'
+        ).distinct()
+    context  = {
+        'user':user,
+        'addresses':addresses,
+    }
+
+    return render(request, 'authentication/profile.html',context)
+
 
 @login_required
-def edit_profile(request):
-    user = request.user
-
+def update_profile(request):
     if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Your profile has been updated successfully.')
-            return redirect('profile')
-    else:
-        form = UserProfileForm(instance=user)
-    
-    return render(request, 'authentication/edit_profile.html', {'form': form})
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        phone_number = request.POST.get('phone_number')
+
+        user = request.user
+        user.name = name
+        user.email = email
+        user.phone_number = phone_number
+        user.save()
+
+        messages.success(request, 'Profile information updated successfully.')
+        return redirect('profile')
+
+    return redirect('profile')  
+
 
 
 @login_required
 def change_password(request):
-    user = request.user
-
     if request.method == 'POST':
-        form = PasswordChangeForm(user, request.POST)
-        if form.is_valid():
-            user = form.save()
-            update_session_auth_hash(request, user)
-            messages.success(request, 'Your password has been changed successfully.')
-            return redirect('profile')
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_new_password = request.POST.get('confirm_new_password')
+
+        user = authenticate(request, email=request.user.email, password=current_password)
+        if user is not None:
+            if new_password == confirm_new_password:
+                request.user.set_password(new_password)
+                request.user.save()
+                update_session_auth_hash(request, request.user)
+                messages.success(request, 'Your password has been changed successfully.')
+            else:
+                messages.error(request, 'New password and confirm password do not match.')
         else:
-            messages.error(request, 'Please correct the error below.')
-    else:
-        form = PasswordChangeForm(user)
-    
-    return render(request, 'authentication/change_password.html', {'form': form})
+            messages.error(request, 'Current password is incorrect.')
 
-#..................................#adress.......................................
-@login_required
-def show_addresses(request):
-    addresses = UserAddress.objects.filter(user=request.user)
-    try:
-        user_profile = UserProfile.objects.get(user=request.user)
-        return render(request, 'authentication/show_addresses.html', {'addresses': addresses, 'user_profile': user_profile})
-    except UserProfile.DoesNotExist:
-        print('user none')
-        # Handle the case where UserProfile does not exist for the user
-        return render(request, 'authentication/show_addresses.html', {'addresses': addresses, 'user_profile': None})
+        return redirect('profile')
 
+    return render(request, 'authentication/profile.html')
 
-@login_required
-def add_address(request):
+#forgot Password 
+
+def forgot_password(request):
+    return render( request, 'authentication/forgot_password.html')
+
+def send_otp(request):
     if request.method == 'POST':
-        form = UserAddressForm(request.POST)
-        if form.is_valid():
-            address = form.save(commit=False)
-            address.user = request.user
-            address.save()
-            messages.success(request, 'Address added successfully.')
-            return redirect('show_addresses')
-    else:
-        form = UserAddressForm()
-    return render(request, 'authentication/add_address.html', {'form': form})
+        email = request.POST.get('email')
+        user = CustomUser.objects.filter(email=email).first()
 
-@login_required
-def edit_address(request, address_id):
-    address = get_object_or_404(UserAddress, id=address_id, user=request.user)
+        if user:
+            # Generate OTP
+            otp = ''.join(random.choices(string.digits, k=6))
+            user.otp = otp
+            user.save()
+
+            # Send OTP via email
+            send_mail(
+                'Email Verification',
+                f'Your OTP is: {otp}',
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False
+            )
+
+            # Redirect to OTP verification page
+            return redirect(verify_forgot_otp,email=email)
+        else:
+            # Handle the case when the user email is not found
+            return render(request, 'email_not_found.html')
+    
+    return render(request, 'authentication/forgot_password.html')
+
+
+
+def verify_forgot_otp(request,email=None):  # Add the email parameter here
     if request.method == 'POST':
-        form = UserAddressForm(request.POST, instance=address)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Address updated successfully.')
-            return redirect('show_addresses')
+        email = request.POST.get('email')
+        user_otp = request.POST.get('otp')
+
+        user = CustomUser.objects.filter(email=email,otp=user_otp).first()
+       
+
+
+        if user:
+            # Reset the OTP after successful verification
+            user.otp = None
+            user.save()
+
+            # Redirect to the page for adding a new password
+            return redirect('add_new_password')
+        else:
+            # Handle the case when the entered OTP is invalid
+            # Redirect back to the same OTP verification page with the email as a parameter
+            return redirect('verify_forgot_otp',)  # Redirect to the same page with the email as a parameter
     else:
-        form = UserAddressForm(instance=address)
-    return render(request, 'authentication/edit_address.html', {'form': form, 'address': address})
-
-
-@login_required
-def delete_address(request, address_id):
-    address = get_object_or_404(UserAddress, id=address_id, user=request.user)
-    address.delete()
-    messages.success(request, 'Address deleted successfully.')
-    return redirect('show_addresses')
-
-
-@login_required
-def choose_default_address(request, address_id):
-    address = get_object_or_404(UserAddress, id=address_id, user=request.user)
+        # If the request is GET, display the OTP verification page with the email if available
+        return render(request, 'authentication/otp_verification.html', {'email': email})
     
-    if address.is_default:
-        order = Order.objects.filter(user=request.user).first()
-        if order:
-            order.shipping_address = address
-            order.save()
+
+
+def add_new_password(request,email=None):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        
+        new_password = request.POST.get('new_password')
+
+
+        user = CustomUser.objects.filter(email=email).first()
+        password_pattern = r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{6,}$'
+        if not re.match(password_pattern, new_password):
+            messages.error(request, "Password must contain at least one uppercase letter, one digit, one special character, and be at least 6 characters long.")
+            return redirect('add_new_password')
     
-    UserAddress.objects.filter(user=request.user).update(is_default=False)
-    address.is_default = True
-    address.save()
-    
-    messages.success(request, 'Default address updated successfully.')
-    return redirect('show_addresses')
+
+        if user:
+            # Set the new password for the user
+            user.set_password(new_password)
+            user.save()
+
+            # Redirect to the login page or any other page as needed
+            return redirect('user_login')  # Replace 'login' with the appropriate URL name for your login page
+        else:
+            # Handle the case when the user email is not found
+            messages.error(request, 'User not found.')
+            return redirect('verify_forgot_otp')  # Redirect back to the OTP verification page
+
+    return render(request, 'authentication/add_new_password.html',{'email': email})
+
+
+
 
 

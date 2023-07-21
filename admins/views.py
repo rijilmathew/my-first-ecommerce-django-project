@@ -13,13 +13,164 @@ from .models import *
 from authentication.models import *
 from carts.models import *
 from django.contrib.auth import get_user_model
+from django.db.models.functions import ExtractMonth
+from django.db.models import Count,Sum
+import calendar
+from datetime import date, timedelta
+from django.db.models.functions import TruncWeek
+from django.utils.timezone import now
+
+from datetime import datetime
+import datetime
+
+
 
 
 
 # Create your views here.
-
 def admin_home(request):
-    return render(request,'admins/admin_home.html')
+    orders=Order.objects.annotate(month = ExtractMonth('order_date')).values('month').annotate(count=Count('id')).values('month','count')
+    weekly_orders = Order.objects.annotate(week=TruncWeek('order_date')).values('week').annotate(count=Count('id')).values('week', 'count')
+    users = CustomUser.objects.all()
+    products = Product.objects.all()
+
+
+    #todays order
+    today = date.today()
+    orderss = Order.objects.filter(order_date__date=today)
+    order_count = orderss.count()
+    #todays order end 
+
+
+    #total_orders
+    total_orders = Order.objects.all()
+    total_orders_count =  total_orders.count()
+    #total_orders end
+
+    #order_cancel graph
+    order_cancel = Order.objects.filter( order_status = 'Cancelled',order_date__date=today)
+    no_of_order_cancel =  order_cancel.count()
+    #order_cancel end 
+
+    #order cancel report
+    cancelled_orders = Order.objects.filter(order_status='Cancelled')
+    total_mrp_sum = cancelled_orders.aggregate(total=Sum('total_mrp'))['total']
+  
+    #order_cancel report end
+
+    # no_of_users
+    no_of_users = users.count()
+    #no_of_users_end
+    #sale report
+    sailed_orders = Order.objects.filter(order_status='Delivered')
+  
+
+
+
+
+    #sales report end 
+
+
+    #monthly total sale 
+    current_month = now().month
+    sales_data = []
+    monthlabels = []
+
+    for month in range(1, current_month + 1):
+        total_payment_amount = Order.objects.filter(
+            order_date__month=month,
+            payment_status='Completed'
+        ).aggregate(total_payment=Sum('payment_amount'))['total_payment'] or 0
+
+        sales_data.append(float(total_payment_amount))
+        month_name = calendar.month_name[month]
+        monthlabels.append(month_name)
+    
+    #monthly total sale end 
+
+    #
+    
+    monthNumber = []
+    totalOrders = []
+    productName = []
+    productCounts = []
+    
+    
+    
+    for product in products:
+        productName.append(product.product_name)
+        productCount = OrderItem.objects.filter(product=product).count()
+        productCounts.append(productCount)
+   
+
+    #week days 
+
+    # Get the start and end dates for the desired week
+    todday = timezone.now().date()
+    current_start_date = today - datetime.timedelta(days=todday.weekday())  # Get the start of the current week (Monday)
+    current_end_date = current_start_date + datetime.timedelta(days=6)  # Get the end of the current week (Sunday)
+
+    # Get the start and end dates for the previous week
+    previous_start_date = current_start_date - datetime.timedelta(days=7)  # Get the start of the previous week (Monday)
+    previous_end_date = previous_start_date + datetime.timedelta(days=6)  # Get the end of the previous week (Sunday)
+
+    # Query data for the current week
+    current_week_counts = Order.objects.filter(order_date__range=[current_start_date, current_end_date]).values('order_date__date').annotate(count=Count('id'))
+    current_week_dates = [current_start_date + datetime.timedelta(days=day) for day in range(7)]  # Create a list of dates within the current week
+
+    # Create a dictionary to store the count per day for the current week with default 0 value for missing days
+    current_counts_per_day = {date: 0 for date in current_week_dates}
+    for count in current_week_counts:
+        current_counts_per_day[count['order_date__date']] = count['count']
+
+    # Query data for the previous week
+    previous_week_counts = Order.objects.filter(order_date__range=[previous_start_date, previous_end_date]).values('order_date__date').annotate(count=Count('id'))
+    previous_week_dates = [previous_start_date + datetime.timedelta(days=day) for day in range(7)]  # Create a list of dates within the previous week
+
+    # Create a dictionary to store the count per day for the previous week with default 0 value for missing days
+    previous_counts_per_day = {date: 0 for date in previous_week_dates}
+    for count in previous_week_counts:
+        previous_counts_per_day[count['order_date__date']] = count['count']
+    
+
+    currentWeekCounts=list(current_counts_per_day.values())
+    currentWeekDates= [date.strftime("%A") for date in current_week_dates]
+    previousWeekCounts= list(previous_counts_per_day.values())
+    previousWeekDates= [date.strftime("%A") for date in previous_week_dates]
+
+    #week days end    
+
+  
+
+    for d in orders:
+        monthNumber.append(calendar.month_name[d['month']])
+        totalOrders.append(d['count'])
+       
+    
+    context = { 'monthNumber':monthNumber,
+                'totalOrders':totalOrders,
+                'productName':productName,
+                'productCounts':productCounts,
+                'order_count':order_count,
+                'total_orders_count':total_orders_count,
+                'no_of_order_cancel':no_of_order_cancel,
+                'cancelled_orders': cancelled_orders,
+                'total_mrp_sum': total_mrp_sum,
+                'no_of_users':no_of_users,
+                'sales_data': sales_data,
+                'monthlabels': monthlabels,
+                'products':products,
+                'sailed_orders':sailed_orders,
+                'currentWeekCounts':currentWeekCounts,
+                'currentWeekDates':currentWeekDates,
+                'previousWeekCounts': previousWeekCounts,
+                'previousWeekDates':previousWeekDates,
+                        
+
+                }       
+
+    
+    return render(request,'admins/admin_home.html',context)
 
 def admin_login(request):
     if request.method=='POST':
@@ -45,27 +196,6 @@ def admin_logout(request):
     if request.user.is_authenticated:
         logout(request)
         return redirect('admin_login')   
-
-def customers(request):
-    customers = CustomUser.objects.filter(is_active=True,is_superuser=False)
-    context = {
-        'data': customers
-    }
-    return render(request, 'admins/customers.html', context)
-def block_user(request,id):
-    if request.method=='POST':
-        customer = CustomUser.objects.get(pk=id)
-        customer.is_active= False
-        customer.save()
-    return redirect('customers')
-    
-    
-def unblock_user(request,id):
-    if request.method=='POST':
-        customer = CustomUser.objects.get(pk=id)
-        customer.is_active= True
-        customer.save()
-    return redirect('customers')
 
 
 
@@ -246,14 +376,14 @@ def product_delete(request,id):
     context = {'products':products,'brands':brands,'categories':categories}
     return redirect('product_list')  
 
+
 def product_view(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
     return render(request, 'product_view.html', {'product': product})
 
 
 def user_home(request):
-    user = CustomUser.objects.all()
-    # user = CustomUser.objects.exclude(is_admin=True).order_by('id')
+    user = CustomUser.objects.filter(is_superuser=False)
     return render(request,'admins/user_home.html',{'users':user})
 # def user_edit(request,id):
 #     user = Account.objects.get(id=id)
@@ -299,7 +429,7 @@ def order_list(request):
     users = get_user_model().objects.all()
     default_addresses = UserAddress.objects.filter(user__in=users, is_default=True)
     products = Product.objects.all()
-    # singleproducts = Product.objects.all()
+   
    
     product_totals = {}
     for order_item in order_items:
@@ -329,6 +459,181 @@ def order_update(request,id):
         order_status.save()
         return redirect('order_list')
     return render(request, 'admins/oder_list.html')
+#searching   
+
+def order_list_today(request):
+    today = date.today()
+    orders = Order.objects.filter(order_date__date=today)
+    order_items = OrderItem.objects.filter(order_no__in=orders)
+    users = CustomUser.objects.all()
+    products = Product.objects.all()
+    product_totals = {}
+    for order_item in order_items:
+        product_total = order_item.quantity * order_item.product.product_price
+        product_totals[order_item.id] = product_total
+    
+    context = {
+               'orders': orders,
+               'order_items': order_items, 
+               'users': users,
+               'product_totals': product_totals, 
+               'products': products, 
+            }
+    return render(request, 'admins/oder_list.html', context)
+
+
+
+def order_list_monthly(request):
+    today = date.today()
+    start_of_month = today.replace(day=1)
+    end_of_month = (start_of_month + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+    
+    orders = Order.objects.filter(
+        order_date__range=[start_of_month, end_of_month]
+    )
+    order_items = OrderItem.objects.filter(
+       order_no__in=orders
+    )
+    
+    users = CustomUser.objects.all()
+    
+    products = Product.objects.all()
+    product_totals = {}
+    for order_item in order_items:
+        product_total = order_item.quantity * order_item.product.product_price
+        product_totals[order_item.id] = product_total
+ 
+    
+    context = {
+        'orders': orders,
+        'order_items': order_items,
+        'users': users,
+        'product_totals': product_totals, 
+        'products': products,
+       
+    }
+    
+    return render(request, 'admins/oder_list.html', context)
+
+
+
+def order_list_yearly(request):
+    today = date.today()
+    start_of_year = today.replace(month=1, day=1)
+    end_of_year = today.replace(month=12, day=31)
+    
+    orders = Order.objects.filter(
+        order_date__year=today.year
+    )
+    order_items = OrderItem.objects.filter(
+        order_no__in=orders
+    )
+    
+    users = CustomUser.objects.all()
+    
+    products = Product.objects.all()
+    product_totals = {}
+    for order_item in order_items:
+        product_total = order_item.quantity * order_item.product.product_price
+        product_totals[order_item.id] = product_total
+    
+    
+    context = {
+        'orders': orders,
+        'order_items': order_items,
+        'users': users,
+        'product_totals': product_totals, 
+        'products': products,
+        
+    }
+    
+    return render(request, 'admins/oder_list.html', context)
+
+
+
+
+def order_list_weekly(request):
+    today = date.today()
+    start_of_week = today - timedelta(days=today.weekday())
+    end_of_week = start_of_week + timedelta(days=6)
+    
+    orders = Order.objects.filter(
+        order_date__range=[start_of_week, end_of_week]
+    )
+    order_items = OrderItem.objects.filter(
+         order_no__in=orders
+    )
+    
+    users = CustomUser.objects.all()
+    
+    products = Product.objects.all()
+    product_totals = {}
+    for order_item in order_items:
+        product_total = order_item.quantity * order_item.product.product_price
+        product_totals[order_item.id] = product_total
+    
+    
+    
+    context = {
+        'orders': orders,
+        'order_items': order_items,
+        'users': users,
+        'product_totals': product_totals, 
+        'products': products,
+        
+    }
+    
+    return render(request, 'admins/oder_list.html', context)
+
+
+
+
+def order_list_within_duration(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    users = CustomUser.objects.all()
+
+    products = Product.objects.all()
+   
+  
+
+    if start_date and end_date:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+        end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+
+        print("Formatted Start Date:", start_date)
+        print("Formatted End Date:", end_date)
+
+        orders = Order.objects.filter(order_date__range=[start_date, end_date])
+        order_items = OrderItem.objects.filter(order_no__in=orders)
+        product_totals = {}
+        for order_item in order_items:
+            product_total = order_item.quantity * order_item.product.product_price
+            product_totals[order_item.id] = product_total
+
+
+        print("Filtered Orders:", orders)
+        print("Filtered Order Items:", order_items)
+
+        context = {
+            'orders': orders,
+            'order_items': order_items,
+            'users': users,
+            'product_totals': product_totals, 
+            'products': products,
+            
+        }
+
+        return render(request, 'admins/oder_list.html', context)
+
+    return render(request, 'admin/order_list.html', {'users': users,'products': products,})
+
+
+
+
+# #searching    end
+
 
 
 #coupon.............................................................coupon 

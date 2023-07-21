@@ -45,7 +45,8 @@ class Order(models.Model):
     PAYMENT_METHOD = (
         ('COD', 'COD'),
         ('Razorpay', 'Razorpay'),
-        ('paid by paypal', 'paid by paypal'),
+        ('Paypal','Paypal'),
+        
     )
 
     PAYMENT_STATUS = (
@@ -103,10 +104,14 @@ class Order(models.Model):
         return self.get_total()
 
 class OrderItem(models.Model):
+    CANCELLATION_STATUS = (
+    ('Pending', 'Pending'),
+    ('Cancelled', 'Cancelled'),
+    )
     order_no = models.ForeignKey(Order, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity= models.PositiveIntegerField(null=False)
-
+    status = models.CharField(max_length=50, choices=CANCELLATION_STATUS, default='Pending')
     def __str__(self):
         return str(self.order_no)
 
@@ -125,4 +130,18 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return f"Wishlist for {self.user.username}"    
+    
+
+class Wallet(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def __str__(self):
+        return f"Wallet for {self.user.username}"    
+    
+    
+
+
+
+
     

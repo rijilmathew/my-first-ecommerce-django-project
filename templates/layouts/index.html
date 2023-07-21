@@ -6,27 +6,61 @@
 
 
 {% include "inc/slider.html" %}  
-<section class="about py-lg-4 py-md-3 py-sm-3 py-3" id="about">
-   <div class="container py-lg-5 py-md-5 py-sm-4 py-4">
-      <h3 class="title text-center mb-lg-5 mb-md-4 mb-sm-4 mb-3">Best Products</h3>
 
-      <div class="row">
-         {% for product in best_products %}
-          {% if product.product_name == q or product in best_products %}
-            <div class="col-lg-4 col-md-6 col-sm-6 mt-3 text-center banner-agile-flowers">
-               <img src="{{ product.product_thumbnail.url }}" class="img-thumbnail" alt="{{ product.product_name }}">
-               <div class="banner-right-icon">
-                  <h4 class="pt-3">{{ product.product_name }}</h4>
-               </div>
+
+
+<section style="background-color: #eee;">
+  <div class="container py-5">
+    <div class="row">
+     {% for product in best_products %}
+        <div class="col-md-12 col-lg-4 mb-4 mb-lg-0">
+          <div class="card">
+            <div class="d-flex justify-content-between p-3">
+              <p class="lead mb-0">Now Trending</p>
+              <div
+                class="bg-info rounded-circle d-flex align-items-center justify-content-center shadow-1-strong"
+                style="width: 35px; height: 35px;">
+                <p class="text-white mb-0 small">x4</p>
+              </div>
             </div>
-          {% endif %}
-         {% endfor %}
-      </div>
-   </div>
+            <img src="{{ product.product_thumbnail.url }}"
+              class="card-img-top w-100 fixed-size-image" alt="Laptop" />
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <p class="small"><a href="#!" class="text-muted">Laptops</a></p>
+              </div>
+
+              <div class="d-flex justify-content-between mb-3">
+                <h5 class="mb-0">{{product.product_name}}</h5>
+                <h5 class="text-dark mb-0">{{product.product_price}}</h5>
+              </div>
+
+              <div class="d-flex justify-content-between mb-2">
+                <p class="text-muted mb-0">Available: <span class="fw-bold">{{product.product_quantity}}</span></p>
+                <div class="ms-auto text-warning">
+                  <i class="fa fa-star"></i>
+                  <i class="fa fa-star"></i>
+                  <i class="fa fa-star"></i>
+                  <i class="fa fa-star"></i>
+                  <i class="fa fa-star"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
 </section>
 
+
+
+
+
+
+
       <!--new Arrivals -->
-      <section class="blog py-lg-4 py-md-3 py-sm-3 py-3">
+      {% comment %} <section class="blog py-lg-4 py-md-3 py-sm-3 py-3">
          <div class="container py-lg-5 py-md-4 py-sm-4 py-3">
             <h3 class="title clr text-center mb-lg-5 mb-md-4 mb-sm-4 mb-3">New Arrivals</h3>
             <div class="slid-img">
@@ -49,15 +83,61 @@
                </ul>
             </div>
          </div>
-      </section>
+      </section> {% endcomment %}
       <!--//about -->
       <!--Customers Review -->
             
       
+<section style="background-color: #89CFF0;">
+  <div class="text-center container py-5">
+    <h4 class="mt-4 mb-5"><strong>New Arrivals</strong></h4>
+     <div class="row">
+      {% for product in new_arrivals %}
+          <div class="col-lg-3 col-md-6 mb-4">
+              <div class="card position-relative">
+                  <div class="bg-image hover-zoom ripple ripple-surface ripple-surface-light"
+                    data-mdb-ripple-color="light">
+                    <img src="{{ product.product_thumbnail.url }}"
+                      class="w-100 fixed-size-image" />
+                    <a href="#!">
+                      <div class="mask">
+                        <div class="d-flex justify-content-start align-items-end h-100">
+                          <h5><span class="badge bg-primary ms-2">New</span></h5>
+                        </div>
+                      </div>
+                      <div class="hover-overlay">
+                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="card-body">
+                    <a href="" class="text-reset">
+                      <h5 class="card-title mb-3">{{product.product_name}}</h5>
+                    </a>
+                    <a href="" class="text-reset">
+                      <p>{{product.product_category}}</p>
+                    </a>
+                    <h6 class="mb-3">{{product.product_price}}</h6>
+                  </div>
+                </div>
+            </div>
+      {%endfor%}
+     </div>
+  </div>
+</section>
+
+<style>
+  .fixed-size-image {
+    width: 300px; /* Specify your desired width */
+    height: 200px; /* Specify your desired height */
+    object-fit: cover; /* Ensure the image fills the fixed size */
+  }
+</style>
+
 
 {% endblock body %}
 
-<style>
+{% comment %} <style>
 .product-list {
   display: flex;
   justify-content: space-between;
@@ -66,4 +146,4 @@
 .product-item {
   margin-bottom: 20px; /* Adjust the value as desired */
 }
-</style>
+</style> {% endcomment %}

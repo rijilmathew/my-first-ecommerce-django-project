@@ -2,19 +2,12 @@ from django.urls import path
 from.import views
 
 urlpatterns = [
-    
+    path('',views.admin_login,name='admin_login'),
     path('admin_logout',views.admin_logout,name="admin_logout"),
     path('customers',views.customers,name="customers"),
     path('blockuser/<int:id>',views.block_user,name="blockuser"),
     path('unblockuser/<int:id>',views.unblock_user,name="unblockuser"),
-  
-
-
-    
-
-
-    path('',views.admin_login,name='admin_login'),
-    path('admin_home', views.admin_home, name='admin_home'),
+    path('admin_home/', views.admin_home, name='admin_home'),
     path('product_list', views.product_list,name='product_list'),
     path('product_add', views.product_add,name='product_add'),
     path('product_edit', views.product_edit,name='product_edit'),
@@ -40,10 +33,16 @@ urlpatterns = [
     path('change_brand_block_status/<str:id>', views.change_brand_block_status,name='change_brand_block_status'),
     
     path('order_list', views.order_list,name='order_list'),
-    # path('order_update/<int:pk>/', views.order_update, name='order_update'),
     path('order_update/<int:id>/', views.order_update, name='order_update'),
+    path('order-list-today',views.order_list_today,name="order_list_today"),
+    path('order-list-monthly',views.order_list_monthly,name="order_list_monthly"),
+    path('order-list-yearly',views.order_list_yearly,name="order_list_yearly"),
+    path('order_list_weekly',views.order_list_weekly,name="order_list_weekly"),
+    path('order_list_within_duration',views.order_list_within_duration,name="order_list_within_duration"),
+
+
+
     path('coupon', views.coupon,name='coupon'),
-    # path('admin_dashboard/coupons/', views.coupon_list, name='coupon_list'),
     path('coupon-add', views.coupon_add, name='coupon_add'),
     path('coupon_edit/<int:coupon_id>/', views.coupon_edit, name='coupon_edit'),
     path('coupon-delete/<int:coupon_id>/', views.coupon_delete, name='coupon_delete'),

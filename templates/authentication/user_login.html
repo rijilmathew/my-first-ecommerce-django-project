@@ -1,0 +1,127 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Login OTP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- LINEARICONS -->
+    <link rel="stylesheet" href="{% static 'fonts/linearicons/style.css' %}">
+    
+    <!-- STYLE CSS -->
+    <link rel="stylesheet" href="{% static 'css/signup.css'%}">
+    <style>
+        /* Chrome, Safari, Edge, Opera */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        
+        /* Firefox */
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+        </style>
+</head>
+
+<body>
+!-- Modal -->
+  <div class="modal fade" id="otpModal" tabindex="-1" role="dialog" aria-labelledby="otpModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="otpModalLabel">Mobile OTP Verification</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-group">
+                <label for="mobile">Mobile Number:</label>
+                <input type="text" class="form-control" id="mobile" placeholder="Enter your mobile number" required>
+              </div>
+              <div class="form-group">
+                <label for="otp">OTP:</label>
+                <input type="text" class="form-control" id="otp" placeholder="Enter the OTP" required>
+              </div>
+              <div class="form-group">
+                <button type="button" class="btn btn-primary" id="generateOtpBtn">Generate OTP</button>
+                <span id="otpTimer"></span>
+                <button type="button" class="btn btn-link" id="resendOtpBtn">Resend OTP</button>
+              </div>
+            </form>
+          </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Verify</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Bootstrap JS -->
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function() {
+      $('#generateOtpBtn').click(function() {
+        // Get the mobile number entered by the user
+        const mobileNumber = $('#mobile').val();
+        
+        // Send the mobile number to the server to generate and send OTP via Twilio
+        $.ajax({
+          type: 'POST',
+          url: '/send_otp/',  // Replace with the URL that handles sending OTP (defined in Django URLs)
+          data: {
+            'phone_number': mobileNumber,
+            'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+          },
+          success: function(response) {
+            // Display success message or handle response as needed
+            alert('OTP sent successfully to your mobile number.');
+          },
+          error: function(error) {
+            // Display error message or handle error as needed
+            alert('Failed to send OTP. Please try again later.');
+          }
+        });
+      });
+
+      $('#otpForm').submit(function(e) {
+        e.preventDefault();
+        // Get the OTP entered by the user
+        const enteredOTP = $('#otp').val();
+        
+        // Verify the OTP entered by the user
+        $.ajax({
+          type: 'POST',
+          url: '/verify_otp/',  // Replace with the URL that handles OTP verification (defined in Django URLs)
+          data: {
+            'phone_number': $('#mobile').val(),
+            'otp': enteredOTP,
+            'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+          },
+          success: function(response) {
+            if (response.status === 'success') {
+              // Redirect to the home page upon successful verification
+              window.location.href = '/home/';  // Replace with the URL of your home page
+            } else {
+              // Display error message or handle invalid OTP as needed
+              alert('Invalid OTP. Please try again.');
+            }
+          },
+          error: function(error) {
+            // Display error message or handle error as needed
+            alert('Failed to verify OTP. Please try again later.');
+          }
+        });
+      });
+    });
+</script>
+</body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+</html>

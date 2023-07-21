@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     'authentication',
     'admins',
     'carts',
+    'crispy_forms',
     
 ]
 
@@ -70,7 +72,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'users.context_processors.categories',
                 'carts.context_processors.counter',
-
+                'carts.context_processors.wishlist_counter',
                 
             ],
         },

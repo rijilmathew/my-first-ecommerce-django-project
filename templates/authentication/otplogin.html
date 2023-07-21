@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OTP Login</title>
+  <!-- Add Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container center-container">
+    <div>
+      <h2 class="text-center mb-4">OTP Login</h2>
+      <form action="{% url 'login_otp' %}" method="GET">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="mobile">Mobile Number:</label>
+          <input type="text" class="form-control short-input" id="mobile" name="phone_number" placeholder="Enter your mobile number" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

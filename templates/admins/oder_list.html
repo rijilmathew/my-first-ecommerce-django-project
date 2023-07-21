@@ -12,7 +12,7 @@
 					<h4 class="card-title"> Order Management</h4>
 
 					<div style="margin-left: 40rem;margin-bottom: 2rem;">
-						<form class="date-form" action="#" method="get"
+						<form class="date-form" action="{% url 'order_list_within_duration' %}" method="get"
 							style="width: 21rem;margin-left: -40rem;">
 							{% csrf_token %}
 							<label for="from-date">From</label>
@@ -32,10 +32,10 @@
 
 
 						<a href="{% url 'order_list' %}" class="btn btn-primary">Total</a>
-						{% comment %} <a href="{% url 'order_list_today' %}" class="btn btn-success">Today</a>
+						<a href="{% url 'order_list_today' %}" class="btn btn-success">Today</a>
 						<a href="{% url 'order_list_weekly' %}" class="btn btn-danger">This Week</a>
 						<a href="{% url 'order_list_monthly' %}" class="btn btn-info">This Month</a>
-						<a href="{% url 'order_list_yearly' %}" class="btn btn-warning">This Year</a> {% endcomment %}
+						<a href="{% url 'order_list_yearly' %}" class="btn btn-warning">This Year</a> 
 
 					</div>
 
@@ -50,7 +50,7 @@
 									<th>Order Status</th>
 									<th>Payment Method</th>
 									<th>Payment Status</th>
-									<th>Checkout Status</th>
+									
 									<th>Payment Amount</th>
 									<th>Actions</th>
 									<th>Product name</th>
@@ -88,8 +88,8 @@
 											<td rowspan="{{ order.orderitem_set.count }}">{{ order.order_status }}</td>
 											<td rowspan="{{ order.orderitem_set.count }}">{{ order.payment_method }}</td>
 											<td rowspan="{{ order.orderitem_set.count }}">{{ order.payment_status }}</td>
-											<td rowspan="{{ order.orderitem_set.count }}"></td>
-											<td rowspan="{{ order.orderitem_set.count }}"></td>
+											
+											<td rowspan="{{ order.orderitem_set.count }}">{{order.payment_amount}}</td>
 											<td rowspan="{{ order.orderitem_set.count }}">
 												<a href="#editEmployeeModal-{{ forloop.counter }}" class="btn btn-warning"
 													data-toggle="modal" title="Edit">Edit</a>

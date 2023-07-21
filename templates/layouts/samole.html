@@ -310,3 +310,38 @@ checkout
     #     messages.success(request, 'Your order has been placed successfully.')
     #     return redirect('order_summary', order_id=order.id)
     #     # return redirect('order_summary')
+
+
+    invoice
+
+     <script>
+
+        function downloadPDF() {
+            const element = document.getElementById('topdf');
+
+            // configure the html2pdf options
+            const options = {
+                filename: 'Invoice.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            // convert the element to PDF
+            html2pdf().from(element).set(options).save();
+        }
+    </script>
+
+     <div class="d-flex justify-content-between mb-3">
+                <a href="/" class="btn btn-success mt-4"><b>Continue Shopping</b></a>
+                <button onclick="downloadPDF()" class="btn btn-info mt-4">
+                    <b>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer-fill" viewBox="0 0 16 16">
+                            <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2H5zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z" />
+                            <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2V7zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z" />
+                        </svg>
+                        Print Invoice
+                    </b>
+                </button>
+            </div>
+            GET http://127.0.0.1:8000/static/css/JiSlider.css net::ERR_ABORTED 404 (Not Found)

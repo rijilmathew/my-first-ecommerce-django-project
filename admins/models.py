@@ -33,6 +33,7 @@ class Filter_Price(models.Model):
         ('100000 TO 150000', '100000 TO 150000'),
     )
     price = models.CharField(choices=Filter_Price, max_length=60, primary_key=True)
+   
 
 
 
@@ -41,7 +42,6 @@ class Product(models.Model):
    product_name = models.CharField(max_length=100,unique=True) 
    product_category = models.ForeignKey(ProductCategory,on_delete=models.CASCADE,default=True,null=False)
    product_brand = models.ForeignKey(ProductBrand,on_delete=models.CASCADE)
-#    product_price = models.IntegerField() 
    product_price = models.DecimalField(max_digits=10, decimal_places=2)
    product_description = models.TextField(max_length=500,blank=True)
    product_thumbnail = models.ImageField(upload_to='images/products',default=None,blank=True,null=True)

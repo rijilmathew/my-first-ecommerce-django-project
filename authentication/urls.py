@@ -8,11 +8,23 @@ path('verify-otp',views.verify_otp, name='verify_otp'),
 path('logout',views.user_logout,name="logout"),
 path('profile', views.profile, name='profile'),
 path('change-password', views.change_password, name='change_password'),
-path('edit-profile', views.edit_profile, name='edit_profile'),
-path('show_addresses', views.show_addresses, name='show_addresses'),
-path('add_address', views.add_address, name='add_address'),
-path('addresses/<int:address_id>/edit/', views.edit_address, name='edit_address'),
-path('addresses/<int:address_id>/delete/', views.delete_address, name='delete_address'),
-path('addresses/<int:address_id>/select/', views.choose_default_address, name='choose_default_address'),
+path('update_profile', views.update_profile, name='update_profile'),
+
+
+path('otp-login',views.otp_login,name="otp_login"),
+path('login-otp',views.login_otp,name="login_otp"),
+path('otp',views.otp,name="otp"),
+path('verify_mobileotp',views.verify_mobileotp,name="verify_mobileotp"),
+
+path('forgot_password',views.forgot_password,name="forgot_password"),
+path('send_otp',views.send_otp,name="send_otp"),
+path('verify_forgot_otp',views.verify_forgot_otp,name="verify_forgot_otp"),
+path('forgot_otp/<str:email>/',views.verify_forgot_otp,name="verify_forgot_otp"),
+path('add_new_password',views.add_new_password,name="add_new_password"),
+
+
+
+  
+  
 
 ]

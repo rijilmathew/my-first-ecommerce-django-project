@@ -1,0 +1,18 @@
+{% extends 'layouts/main.html' %}
+{% load static %}
+
+{% block body %} 
+<div class="inner_page-banner one-img" style="text-align: center; background: url('{% static 'lap/images/blackbanner.jpg' %}') no-repeat center; background-size: cover; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; -ms-background-size: cover; min-height: 350px;"></div>
+<div class="container d-flex align-items-center justify-content-center" style="height: 100vh;">
+  <div class="col-md-6">
+    <div class="card bg-primary text-white">
+      <div class="card-body text-center">
+        <h1 class="mt-4">Wallet</h1>
+        <p>User: {{ wallet.user.name }}</p>
+        <p>Amount: {{ wallet.amount }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
