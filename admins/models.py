@@ -64,7 +64,8 @@ class Product(models.Model):
       return self.product_name
    def get_url(self):
       return reverse('product_description',args=[self.product_category])
-   
+   class Meta:
+        ordering = ['id']
    
    
    def save(self, *args, **kwargs):
@@ -77,6 +78,8 @@ class ProductImage(models.Model):
     image1= models.ImageField(upload_to='images/products',null=True, blank=True)
     image2= models.ImageField(upload_to='images/products',null=True, blank=True)
     image3= models.ImageField(upload_to='images/products',null=True, blank=True)
+    def __str__(self):
+      return self.product.product_name
 
 class Coupon(models.Model):
     coupon_name = models.CharField(max_length=25)

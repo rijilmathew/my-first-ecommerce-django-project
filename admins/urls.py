@@ -14,8 +14,7 @@ urlpatterns = [
     path('product_update/<str:id>', views.product_update,name='product_update'),
     path('product_delete/<str:id>', views.product_delete,name='product_delete'),
     path('user_home', views.user_home, name='user_home'),
-    # path('user_edit/<int:id>', views.user_edit, name='user_edit'),
-    # path('user_search', views.user_search, name='user_search'),
+  
     path('block_user/<int:id>', views.block_user, name='block_user'),
     path('unblock_user/<int:id>', views.unblock_user, name='unblock_user'),
 

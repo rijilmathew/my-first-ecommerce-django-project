@@ -23,11 +23,12 @@
                 <p class="text-white mb-0 small">x4</p>
               </div>
             </div>
-            <img src="{{ product.product_thumbnail.url }}"
-              class="card-img-top w-100 fixed-size-image" alt="Laptop" />
+            <a href="{% url 'single_product' product.id %}"> <img src="{{ product.product_thumbnail.url }}"
+              class="card-img-top w-100 fixed-size-image" alt="Laptop" /></a>
+           
             <div class="card-body">
               <div class="d-flex justify-content-between">
-                <p class="small"><a href="#!" class="text-muted">Laptops</a></p>
+                <p class="small"><a href="#!" class="text-muted">{{product.product_brand}}</a></p>
               </div>
 
               <div class="d-flex justify-content-between mb-3">
@@ -52,42 +53,6 @@
     </div>
   </div>
 </section>
-
-
-
-
-
-
-
-      <!--new Arrivals -->
-      {% comment %} <section class="blog py-lg-4 py-md-3 py-sm-3 py-3">
-         <div class="container py-lg-5 py-md-4 py-sm-4 py-3">
-            <h3 class="title clr text-center mb-lg-5 mb-md-4 mb-sm-4 mb-3">New Arrivals</h3>
-            <div class="slid-img">
-               <ul id="flexiselDemo1" class="product-list">
-                  {% for product in new_arrivals %}
-                   {% if product.product_name == q or product in new_arrivals %}
-                     <li class="product-item">
-                        <div class="agileinfo_port_grid">
-                           <img src="{{ product.product_thumbnail.url }}" alt="{{ product.product_name }}" class="img-fluid" />
-                           <div class="banner-right-icon">
-                              <h4 class="pt-3">{{ product.product_name }}</h4>
-                           </div>
-                           <div class="outs_more-buttn">
-                              <a href="{% url 'single_product' product.id %}">Shop Now</a>
-                           </div>
-                        </div>
-                      </li>
-                   {% endif %}
-                  {% endfor %}
-               </ul>
-            </div>
-         </div>
-      </section> {% endcomment %}
-      <!--//about -->
-      <!--Customers Review -->
-            
-      
 <section style="background-color: #89CFF0;">
   <div class="text-center container py-5">
     <h4 class="mt-4 mb-5"><strong>New Arrivals</strong></h4>
@@ -97,8 +62,8 @@
               <div class="card position-relative">
                   <div class="bg-image hover-zoom ripple ripple-surface ripple-surface-light"
                     data-mdb-ripple-color="light">
-                    <img src="{{ product.product_thumbnail.url }}"
-                      class="w-100 fixed-size-image" />
+                  <a href="{% url 'single_product' product.id %}">  <img src="{{ product.product_thumbnail.url }}"
+                      class="w-100 fixed-size-image" /></a>
                     <a href="#!">
                       <div class="mask">
                         <div class="d-flex justify-content-start align-items-end h-100">

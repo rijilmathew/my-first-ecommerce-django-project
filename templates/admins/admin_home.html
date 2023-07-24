@@ -158,9 +158,7 @@
           <li class="nav-item">
             <a class="nav-link active" id="todo-tab" data-toggle="tab" href="#todo-section" role="tab" aria-controls="todo-section" aria-expanded="true">TO DO LIST</a>
           </li>
-          {% comment %} <li class="nav-item">
-            <a class="nav-link" id="chats-tab" data-toggle="tab" href="#chats-section" role="tab" aria-controls="chats-section">CHATS</a>
-          </li> {% endcomment %}
+         
         </ul>
         <div class="tab-content" id="setting-content">
           <div class="tab-pane fade show active scroll-wrapper" id="todo-section" role="tabpanel" aria-labelledby="todo-section">
@@ -336,7 +334,7 @@
                         <h2 class="mb-0 font-weight-normal"><i class="icon-sun mr-2"></i>31<sup>C</sup></h2>
                       </div>
                       <div class="ml-2">
-                        <h4 class="location font-weight-normal">Bangalore</h4>
+                        <h4 class="location font-weight-normal">Kochi</h4>
                         <h6 class="font-weight-normal">India</h6>
                       </div>
                     </div>
@@ -489,6 +487,53 @@
               </div>
             </div>
           </div>
+           <div class="row">
+            <div class="col-md-12 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <p class="card-title mb-0 text-center" style="color: red; font-size: 18px; font-weight: bold;">Cancel Report</p><br>
+                    <div class="table-responsive">
+                      <table id="cancelTable" class="table table-borderless">
+                        <thead>
+                            <tr>
+                                <th class="pl-0 pb-2 border-bottom">Order No</th>
+                                <th class="border-bottom pb-2">Order Status</th>
+                                <th class="border-bottom pb-2">User Name</th>
+                                <th class="border-bottom pb-2">Product Details</th>
+                                <th>Total MRP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in cancelled_orders %}
+                                <tr>
+                                    <td class="pl-0">{{ order.order_no }}</td>
+                                    <td>{{ order.order_status }}</td>
+                                    <td class="text-muted">{{ order.user.name }}</td>
+                                    <td>
+                                        {% for item in order.orderitem_set.all %}
+                                            Quantity: {{ item.quantity }}<br>
+                                            Product: {{ item.product.product_name }}<br>
+                                            <br>
+                                        {% endfor %}
+                                    </td>
+                                    <td>{{order.total_mrp}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                              <td colspan="4" class="text-right font-weight-bold">Total Sum:</td>
+                              <td>{{ total_mrp_sum }}</td>
+                          </tr>
+                      </tfoot>
+                    </table>
+                  
+                    </div>
+                  </div>
+              </div>
+              
+            </div>
+          </div>
           <div class="row">
             <div class="col-md-6 stretch-card grid-margin">
               <div class="card">
@@ -517,83 +562,9 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-6 stretch-card grid-margin">
-              <div class="card">
-                <div class="card-body">
-                   <p class="card-title mb-0 text-center" style="color: red; font-size: 18px; font-weight: bold;">Cancel Report</p><br>
-                  <div class="table-responsive">
-                    <table id="cancelTable" class="table table-borderless">
-                      <thead>
-                          <tr>
-                              <th class="pl-0 pb-2 border-bottom">Order No</th>
-                              <th class="border-bottom pb-2">Order Status</th>
-                              <th class="border-bottom pb-2">User Name</th>
-                              <th class="border-bottom pb-2">Product Details</th>
-                              <th>Total MRP</th>
-                          </tr>
-                      </thead>
-                      <tbody>
-                          {% for order in cancelled_orders %}
-                              <tr>
-                                  <td class="pl-0">{{ order.order_no }}</td>
-                                  <td>{{ order.order_status }}</td>
-                                  <td class="text-muted">{{ order.user.name }}</td>
-                                  <td>
-                                      {% for item in order.orderitem_set.all %}
-                                          Quantity: {{ item.quantity }}<br>
-                                          Product: {{ item.product.product_name }}<br>
-                                          <br>
-                                      {% endfor %}
-                                  </td>
-                                  <td>{{order.total_mrp}}</td>
-                              </tr>
-                          {% endfor %}
-                      </tbody>
-                      <tfoot>
-                        <tr>
-                            <td colspan="4" class="text-right font-weight-bold">Total Sum:</td>
-                            <td>{{ total_mrp_sum }}</td>
-                        </tr>
-                    </tfoot>
-                  </table>
-                 
-                  </div>
-                </div>
-              </div>
-            </div>
+           
           </div>
-          <div class="row">
-            <div class="col-md-12 grid-margin stretch-card">
-              <div class="card">
-                <div class="card-body">
-                  <p class="card-title">Advanced Table</p>
-                  <div class="row">
-                    <div class="col-12">
-                      <div class="table-responsive">
-                        <table id="" class="display expandable-table" style="width:100%">
-                          <thead>
-                            <tr>
-                              <th>Quote#</th>
-                              <th>Product</th>
-                              <th>Business type</th>
-                              <th>Policy holder</th>
-                              <th>Premium</th>
-                              <th>Status</th>
-                              <th>Updated at</th>
-                              <th></th>
-                            </tr>
-                          </thead>
-                      </table>
-                      </div>
-                    </div>
-                  </div>
-                  </div>
-                </div>
-
-                
-              </div>
-            </div>
-        </div>
+     
         <!-- content-wrapper ends -->
         <!-- partial:partials/_footer.html -->
         <footer class="footer">

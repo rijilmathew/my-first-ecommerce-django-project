@@ -19,15 +19,16 @@ import calendar
 from datetime import date, timedelta
 from django.db.models.functions import TruncWeek
 from django.utils.timezone import now
+from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
 
-from datetime import datetime
+
 import datetime
 
 
 
-
-
 # Create your views here.
+@login_required
 def admin_home(request):
     orders=Order.objects.annotate(month = ExtractMonth('order_date')).values('month').annotate(count=Count('id')).values('month','count')
     weekly_orders = Order.objects.annotate(week=TruncWeek('order_date')).values('week').annotate(count=Count('id')).values('week', 'count')
@@ -108,15 +109,15 @@ def admin_home(request):
     # Get the start and end dates for the desired week
     todday = timezone.now().date()
     current_start_date = today - datetime.timedelta(days=todday.weekday())  # Get the start of the current week (Monday)
-    current_end_date = current_start_date + datetime.timedelta(days=6)  # Get the end of the current week (Sunday)
+    current_end_date = current_start_date +datetime. timedelta(days=6)  # Get the end of the current week (Sunday)
 
     # Get the start and end dates for the previous week
-    previous_start_date = current_start_date - datetime.timedelta(days=7)  # Get the start of the previous week (Monday)
+    previous_start_date = current_start_date -datetime. timedelta(days=7)  # Get the start of the previous week (Monday)
     previous_end_date = previous_start_date + datetime.timedelta(days=6)  # Get the end of the previous week (Sunday)
 
     # Query data for the current week
     current_week_counts = Order.objects.filter(order_date__range=[current_start_date, current_end_date]).values('order_date__date').annotate(count=Count('id'))
-    current_week_dates = [current_start_date + datetime.timedelta(days=day) for day in range(7)]  # Create a list of dates within the current week
+    current_week_dates = [current_start_date +datetime. timedelta(days=day) for day in range(7)]  # Create a list of dates within the current week
 
     # Create a dictionary to store the count per day for the current week with default 0 value for missing days
     current_counts_per_day = {date: 0 for date in current_week_dates}
@@ -125,7 +126,7 @@ def admin_home(request):
 
     # Query data for the previous week
     previous_week_counts = Order.objects.filter(order_date__range=[previous_start_date, previous_end_date]).values('order_date__date').annotate(count=Count('id'))
-    previous_week_dates = [previous_start_date + datetime.timedelta(days=day) for day in range(7)]  # Create a list of dates within the previous week
+    previous_week_dates = [previous_start_date + timedelta(days=day) for day in range(7)]  # Create a list of dates within the previous week
 
     # Create a dictionary to store the count per day for the previous week with default 0 value for missing days
     previous_counts_per_day = {date: 0 for date in previous_week_dates}
@@ -385,16 +386,6 @@ def product_view(request, product_id):
 def user_home(request):
     user = CustomUser.objects.filter(is_superuser=False)
     return render(request,'admins/user_home.html',{'users':user})
-# def user_edit(request,id):
-#     user = Account.objects.get(id=id)
-#     if request.method == 'POST':
-#         first_name = request.POST['first_name']
-#         last_name = request.POST['last_name']
-#         email = request.POST['email']
-#         username = request.POST['username']     
-#         user = Account.objects.filter(id=id).update(first_name=first_name, last_name=last_name, email=email, username=username)
-#         return redirect('user_home')
-#     return render(request, 'admin/user_edit.html',{'user':user})
 
 def block_user(request, id):
     if request.method == 'POST':
@@ -410,32 +401,26 @@ def unblock_user(request, id):
         user.save()
         return redirect('user_home') 
 
-# def user_search(request):
-#     # if 'admin' in request.session:
-#     if request.method == 'GET':
-#         user_search = request.GET.get('user_search')
-#         user = CustomUser.objects.filter(name__icontains=user_search)
-#         return render(request,'admins/user_search.html',{'users':user})
-#     else:
-#         return redirect('user_home')
 
 
 
 #addtocart.............................................................addtocart
-
 def order_list(request):
-    orders = Order.objects.all().select_related('user','shipping_address').order_by('-order_date')
+    orders = Order.objects.all().select_related('user', 'shipping_address').order_by('-order_date')
+    paginator = Paginator(orders, 5)  # Create a Paginator object with 5 orders per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)  # Get the current page object
+
     order_items = OrderItem.objects.all()
     users = get_user_model().objects.all()
     default_addresses = UserAddress.objects.filter(user__in=users, is_default=True)
     products = Product.objects.all()
-   
-   
+
     product_totals = {}
     for order_item in order_items:
         product_total = order_item.quantity * order_item.product.product_price
         product_totals[order_item.id] = product_total
-    
+
     context = {
         'orders': orders,
         'order_items': order_items,
@@ -443,8 +428,11 @@ def order_list(request):
         'default_addresses': default_addresses,
         'products': products,
         'product_totals': product_totals,
+        'page_obj': page_obj,  # Pass the page object to the template
     }
-    return render(request, 'admins/oder_list.html',context)  
+    return render(request, 'admins/oder_list.html', context)
+
+
 
 def order_edit(request):
     orders = Order.objects.all()
@@ -464,6 +452,10 @@ def order_update(request,id):
 def order_list_today(request):
     today = date.today()
     orders = Order.objects.filter(order_date__date=today)
+    paginator = Paginator(orders, 5)  # Create a Paginator object with 5 orders per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)  # Get the current page object
+
     order_items = OrderItem.objects.filter(order_no__in=orders)
     users = CustomUser.objects.all()
     products = Product.objects.all()
@@ -477,7 +469,8 @@ def order_list_today(request):
                'order_items': order_items, 
                'users': users,
                'product_totals': product_totals, 
-               'products': products, 
+               'products': products,
+               'page_obj':page_obj, 
             }
     return render(request, 'admins/oder_list.html', context)
 
@@ -491,6 +484,10 @@ def order_list_monthly(request):
     orders = Order.objects.filter(
         order_date__range=[start_of_month, end_of_month]
     )
+    paginator = Paginator(orders, 5)  # Create a Paginator object with 5 orders per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)  # Get the current page object
+
     order_items = OrderItem.objects.filter(
        order_no__in=orders
     )
@@ -510,10 +507,14 @@ def order_list_monthly(request):
         'users': users,
         'product_totals': product_totals, 
         'products': products,
+        'page_obj': page_obj,  # Pass the page object to the template
        
     }
     
     return render(request, 'admins/oder_list.html', context)
+
+
+
 
 
 
@@ -525,6 +526,10 @@ def order_list_yearly(request):
     orders = Order.objects.filter(
         order_date__year=today.year
     )
+    paginator = Paginator(orders, 5)  # Create a Paginator object with 5 orders per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)  # Get the current page object
+
     order_items = OrderItem.objects.filter(
         order_no__in=orders
     )
@@ -544,6 +549,7 @@ def order_list_yearly(request):
         'users': users,
         'product_totals': product_totals, 
         'products': products,
+        'page_obj':page_obj,
         
     }
     
@@ -560,6 +566,10 @@ def order_list_weekly(request):
     orders = Order.objects.filter(
         order_date__range=[start_of_week, end_of_week]
     )
+    paginator = Paginator(orders, 5)  # Create a Paginator object with 5 orders per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)  # Get the current page object
+
     order_items = OrderItem.objects.filter(
          order_no__in=orders
     )
@@ -580,10 +590,13 @@ def order_list_weekly(request):
         'users': users,
         'product_totals': product_totals, 
         'products': products,
+        'page_obj':page_obj,
         
     }
     
     return render(request, 'admins/oder_list.html', context)
+
+
 
 
 
@@ -599,13 +612,17 @@ def order_list_within_duration(request):
   
 
     if start_date and end_date:
-        start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
-        end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+        start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
+        end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
 
         print("Formatted Start Date:", start_date)
         print("Formatted End Date:", end_date)
 
         orders = Order.objects.filter(order_date__range=[start_date, end_date])
+        paginator = Paginator(orders, 5)  # Create a Paginator object with 5 orders per page
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)  # Get the current page object
+
         order_items = OrderItem.objects.filter(order_no__in=orders)
         product_totals = {}
         for order_item in order_items:
@@ -622,12 +639,13 @@ def order_list_within_duration(request):
             'users': users,
             'product_totals': product_totals, 
             'products': products,
+            'page_obj':page_obj,
             
         }
 
         return render(request, 'admins/oder_list.html', context)
 
-    return render(request, 'admin/order_list.html', {'users': users,'products': products,})
+    return render(request, 'admins/oder_list.html', {'users': users,'products': products,})
 
 
 

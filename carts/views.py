@@ -327,18 +327,19 @@ def order_summary(request, order_id):
     }
 
     return render(request, 'layouts/order_summary.html', context)
+
 @login_required(login_url='user_login')
 def order_invoice(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    default_address = UserAddress.objects.filter(user=request.user, is_default=True).first()
-    shipping_address = order.shipping_address
     order_items = OrderItem.objects.filter(order_no=order)
+    for item in order_items:
+        item.total_price = item.quantity * item.product.product_price
+ 
 
     context = {
         'order': order,
         'order_items': order_items,
-        'default_address': default_address,
-        'shipping_address': shipping_address
+      
     }
 
     return render(request, 'layouts/invoice.html', context)

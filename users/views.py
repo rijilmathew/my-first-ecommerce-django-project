@@ -57,7 +57,7 @@ def product_home(request):
         products = products.filter(filter_price__price=filter_price)
 
     # Pagination
-    paginator = Paginator(products, 2)
+    paginator = Paginator(products, 3)
     page_number = request.GET.get('page')
     products = paginator.get_page(page_number)
 
@@ -83,29 +83,6 @@ def product_home(request):
 
 
 
-# def product_by_brand(request,id):
-#     products = Product.objects.filter(product_brand = id)
-#     categories = ProductCategory.objects.all()
-#     brands = ProductBrand.objects.all()
-#     context = {
-#         'products':products,
-#         'categories':categories,
-#         'brands':brands,
-#     }
-#     return render(request,'layouts/product_by_brand.html',context)
-
-# def product_by_category(request, id):
-#     products = Product.objects.filter(product_category=id)
-#     categories = ProductCategory.objects.all()
-#     brands = ProductBrand.objects.all()
-#     context = {
-#         'products': products,
-#         'categories': categories,
-#         'brands': brands,
-#     }
-#     return render(request, 'layouts/product_by_category.html', context)
-
-
 
 
 
@@ -123,7 +100,6 @@ def single_product(request, id):
 
 
    
-
 
 def search(request):
     if 'keyword' in request.GET:
@@ -145,7 +121,7 @@ def search(request):
     return render(request, 'layouts/collections.html', context)
 
 
-@login_required
+@login_required(login_url='user_login')
 def wallet(request):
     try:
         wallet = Wallet.objects.get(user=request.user)
@@ -154,25 +130,38 @@ def wallet(request):
     
     return render(request, 'layouts/wallet.html', {'wallet': wallet})
     
-
-
-
 from django.core.paginator import Paginator
+
+from decimal import Decimal
+
+from decimal import Decimal
 
 def filter_products_by_price(request):
     # Initialize the context dictionary
     context = {}
 
     if request.method == 'POST':
+        # Get the price filter values from the submitted form
         price_min = Decimal(request.POST.get('price-min', 1000))
         price_max = Decimal(request.POST.get('price-max', 1000000))
 
-        # Query the products within the specified price range
-        products = Product.objects.filter(product_price__gte=price_min, product_price__lte=price_max)
-
+        # Convert the Decimal values to float before storing them in the session
+        request.session['selected_price_filter'] = {'min': float(price_min), 'max': float(price_max)}
+        return redirect('filter_products_by_price')
     else:
-        # If no form is submitted, display all products
-        products = Product.objects.all()
+        # If no form is submitted, check if there are stored price filter values in the session
+        selected_price_filter = request.session.get('selected_price_filter')
+        if selected_price_filter:
+            # Convert the stored float values back to Decimal
+            price_min = Decimal(selected_price_filter['min'])
+            price_max = Decimal(selected_price_filter['max'])
+        else:
+            # If there are no stored price filter values, use default values
+            price_min = Decimal(1000)
+            price_max = Decimal(1000000)
+
+    # Query the products within the specified price range and order them by some field (e.g., 'id')
+    products = Product.objects.filter(product_price__gte=price_min, product_price__lte=price_max).order_by('id')
 
     # Pagination
     paginator = Paginator(products, 2)  # Set the number of products per page (e.g., 2 products per page)
@@ -181,10 +170,16 @@ def filter_products_by_price(request):
 
     # Add the products and other relevant data to the context dictionary
     context['products'] = products
+    context['product_count'] = paginator.count
+
+    # Add the selected price filter to the context with default values
+    context['selected_price_filter'] = {'min': price_min, 'max': price_max}
 
     # Add any other data you want to pass to the template
     # ...
 
     return render(request, 'layouts/collections.html', context)
 
+def handling_404(request,exception):
+    return render(request,'layouts/404.html',{})
 

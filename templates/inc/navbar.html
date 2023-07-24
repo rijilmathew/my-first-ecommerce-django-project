@@ -1,27 +1,8 @@
 {% load static %}
 
 
-<!-- Add a modal for user options -->
-<div class="modal fade" id="userOptionsModal" tabindex="-1" role="dialog" aria-labelledby="userOptionsModalLabel" aria-hidden="true">
-   <div class="modal-dialog" role="document">
-      <div class="modal-content">
-         <div class="modal-header">
-            <h5 class="modal-title" id="userOptionsModalLabel">User Options</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-               <span aria-hidden="true">&times;</span>
-            </button>
-         </div>
-         <div class="modal-body">
-            <ul>
-               <li><a href="{% url 'profile' %}" style="color: blue;">Profile</a></li>
-               <li><a href="{% url 'order_history' %}" style="color: blue;">Orders</a></li>
-               <li><a href="{% url 'logout' %}" style="color: blue;">Logout</a></li>
-               <li><a href="{% url 'wallet' %}" style="color: blue;">Wallet</a></li>
-            </ul>
-         </div>
-      </div>
-   </div>
-</div>
+
+
 
 <div class="header-bar">
    <div class="container-fluid">
@@ -55,11 +36,23 @@
                         </button>
                      </form>
                   </li>
-                  <li>
-                     <!-- Trigger the user options modal -->
-                     <a href="#" data-toggle="modal" data-target="#userOptionsModal">
-                        <span class="fas fa-user"></span>
+                 
+                  <li class="nav-item me-3 me-lg-0 dropdown">
+                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown1" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user"></i>
                      </a>
+                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li>
+                              <a class="dropdown-item" href="{% url 'profile' %}">Profile</a>
+                        </li>
+                        <li>
+                              <a class="dropdown-item" href="{% url 'order_history' %}">My Orders</a>
+                        </li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li>
+                              <a class="dropdown-item" href="{% url 'wallet' %}">Wallet</a>
+                        </li>
+                     </ul>
                   </li>
                </ul>
             </div>

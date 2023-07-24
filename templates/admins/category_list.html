@@ -39,15 +39,7 @@
                       <a href="#editEmployeeModal-{{ forloop.counter }}" class="btn btn-warning" data-toggle="modal" title="Edit">Edit</a>&nbsp;&nbsp;
                       <a href="#deleteEmployeeModal-{{ forloop.counter }}" class="btn btn-secondary deleteBtn" data-toggle="modal" title="Delete">Delete</a>&nbsp;&nbsp;
 						<!-- Toggle category block status form -->
-						{% comment %} <form id="toggle-category-form" method="POST" action="{% url 'change_category_block_status' category.id %}">
-							{% csrf_token %}
-							<input type="hidden" id="block-status-input" name="block_status"
-								value="{% if category.is_blocked %}False{% else %}True{% endif %}">
-								<button type="submit" id="toggle-category-button" class="btn {% if category.is_blocked %}btn-danger{% else %}btn-success{% endif %}">
-									{% if category.is_blocked %}Unblock {% else %}Block {% endif %}
-								  </button>
-						</form> {% endcomment %}
-
+						
 						
                     </td>
                   </tr>
