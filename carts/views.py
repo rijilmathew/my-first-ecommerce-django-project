@@ -408,27 +408,34 @@ def cancel_order(request, order_id, product_id):
 
 
 def vieworder(request, od_no):
-    order = Order.objects.filter(order_no=od_no, user=request.user).first()
-    order_items = OrderItem.objects.filter(order_no=order)
-    
-    shipping_address = {
-        'fname': order.fname,
-        'lname': order.lname,
-        'email': order.email,
-        'phone': order.phone,
-        'address': order.address,
-        'city': order.city,
-        'state': order.state,
-        'pincode': order.pincode,
-    }
-    
-    context = {
-        'order': order,
-        'order_items': order_items,
-        'shipping_address': shipping_address
-    }
+    try:
+        order = Order.objects.filter(order_no=od_no, user=request.user).first()
+        order_items = OrderItem.objects.filter(order_no=order)
+        
+        shipping_address = {
+            'fname': order.fname,
+            'lname': order.lname,
+            'email': order.email,
+            'phone': order.phone,
+            'address': order.address,
+            'city': order.city,
+            'state': order.state,
+            'pincode': order.pincode,
+        }
+        
+        context = {
+            'order': order,
+            'order_items': order_items,
+            'shipping_address': shipping_address
+        }
 
-    return render(request, 'layouts/vieworder.html', context)
+        return render(request, 'layouts/vieworder.html', context)
+    
+    except ObjectDoesNotExist:
+
+        return redirect(request.META.get('HTTP_REFERER', '/')) 
+
+        
 
 
 

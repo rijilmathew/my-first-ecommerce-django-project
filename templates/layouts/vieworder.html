@@ -71,7 +71,7 @@
                                 {% comment %} <h4>Grand Total:<span class="float-end">{{ order.payment_amount }}</span></h4> {% endcomment %}
                                 <h4>Grand Total: <span class="float-end">{{order.total_mrp}}</span></h4>
                                 {% if order.coupon.discount_price %}
-                                <h4>Discount Price:{{order.coupon.coupon_name}} coupon <span class="float-end">{{ order.coupon.discount_amount }}</span></h4>
+                                <h4>Discount Price:{{order.coupon.coupon_name}} coupon <span class="float-end">{{ order.coupon.discount_price }}</span></h4>
                                 {% endif %}
                                 <h2>Payment Amount: <span class="float-end">{{ order.payment_amount }}</span></h2>
 
