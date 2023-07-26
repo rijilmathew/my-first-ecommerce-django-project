@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.validators import RegexValidator
 
 # Create your models here.
 class CustomUserManager(BaseUserManager):
@@ -23,8 +24,13 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=150, unique=True, blank=True, null=True)
     email = models.EmailField(max_length=254, unique=True)
-    name = models.CharField(max_length=150)
-    phone_number = models.CharField(max_length=20)
+    name_validator = RegexValidator(
+        regex=r'^[A-Za-z\s]*$',
+        message='Name should only contain alphabets and spaces.',
+        code='invalid_name'
+     )
+    name = models.CharField(max_length=150, validators=[name_validator])
+    phone_number = models.CharField(max_length=20,unique=True)
     otp = models.CharField(max_length=6, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

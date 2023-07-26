@@ -45,14 +45,18 @@ def signup(request):
             return redirect('signup')
         
         # Name validation
-        if not re.match(r'^[a-zA-Z]+$', name):
-            messages.error(request, "Name must only contain letters.")
-            return redirect('signup')
-        
+        if not re.match(r'^[A-Za-z\s]+$', name):
+                messages.error(request, "Name must only contain letters and spaces.")
+                return redirect('signup')
         # Phone number validation
         if not phone_number.isdigit() or len(phone_number) != 10:
             messages.error(request, "Phone number must contain only 10 digits.")
             return redirect('signup')
+        # check the phone_number already exist in data base 
+        if CustomUser.objects.filter(phone_number=phone_number).exists():
+              messages.error(request, "Phone number already exists. Please use a different phone number or log in using the existing account.")
+              return redirect('signup') 
+           
         if CustomUser.objects.filter(email=email).exists():
             messages.error(request, "Email already exists. Please use a different email.")
             return redirect('signup')

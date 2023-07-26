@@ -60,9 +60,11 @@ def add_cart(request, product_id):
                     user=current_user,
                 )
         #remove from wish list
-        wishlist = Wishlist.objects.get(user=current_user)
-        wishlist.products.remove(product)        
-
+        try:
+            wishlist = Wishlist.objects.get(user=current_user)
+            wishlist.products.remove(product)
+        except Wishlist.DoesNotExist:
+            pass 
         return redirect('cart')
     
     else:

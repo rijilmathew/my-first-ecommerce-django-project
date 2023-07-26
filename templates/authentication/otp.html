@@ -8,6 +8,13 @@
 <body>
   <div class="container center-container">
     <div>
+       {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-primary" role="alert">
+              {{message}}
+            </div>
+          {% endfor %}
+        {% endif %}
       <h2 class="text-center mb-4">OTP Verification</h2>
       <form action="{% url 'verify_mobileotp' %}" method="POST">
         {% csrf_token %}
