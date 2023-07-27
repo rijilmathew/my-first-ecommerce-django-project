@@ -25,6 +25,7 @@ import random
 from twilio.rest import Client
 from django_otp.oath import totp
 import string
+from django.core.exceptions import ObjectDoesNotExist
 
 
 
@@ -197,10 +198,13 @@ def login_otp(request):
             if CustomUser.objects.filter(phone_number=phone_number).exists():
                 OtpGenerate.send_otp(phone_number)
                 return redirect('otp')
-          
-        except:
+            else:
+                 messages.error(request, 'Phone Number is not registered')
+                 return redirect('otp_login')
+        except ObjectDoesNotExist:
             messages.error(request, 'Phone Number is not registered')
             return redirect('otp_login')
+            
     else:
         messages.error(request, 'Please provide your phone number')
         return redirect('otp_login')
@@ -334,8 +338,8 @@ def send_otp(request):
             # Redirect to OTP verification page
             return redirect(verify_forgot_otp,email=email)
         else:
-            # Handle the case when the user email is not found
-            return render(request, 'email_not_found.html')
+            messages.error(request,'Email not found please check the email address or register a new account')
+            return redirect('forgot_password')
     
     return render(request, 'authentication/forgot_password.html')
 
